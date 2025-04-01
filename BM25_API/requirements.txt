@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pydantic
+numpy
+rank_bm25
+gunicorn
+pandas
+scikit-learn
