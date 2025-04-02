@@ -4,6 +4,7 @@ from typing import List, Dict
 from rank_bm25 import BM25Okapi
 import pandas as pd
 import uvicorn
+from fastapi import FastAPI, Response
 
 # Initialize FastAPI app
 app = FastAPI(title="BM25 Research Paper Search API", description="Search research papers using BM25", version="1.0")
@@ -58,9 +59,10 @@ def search_bm25(request: QueryRequest):
     results = get_abstract_and_title(result_ids)
     return results
 
-@app.get("/health")
-async def health_check():
-    return {"status": "ok"}
+@app.head("/health")
+async def health_check(response: Response):
+    response.status_code = 200
+    return Response(content="", status_code=200)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
