@@ -58,5 +58,9 @@ def search_bm25(request: QueryRequest):
     results = get_abstract_and_title(result_ids)
     return results
 
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
