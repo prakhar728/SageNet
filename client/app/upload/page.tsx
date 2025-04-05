@@ -13,6 +13,9 @@ import { Badge } from "@/components/ui/badge"
 import { X, Upload, FileText, Check } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
+import { useWriteContract } from "wagmi"
+import SageNetCore from "@/contracts/SageNetCore.json";
+import ContractAddresses from "@/contracts/DeploymentInfo.json";
 
 export default function UploadPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -45,11 +48,28 @@ export default function UploadPage() {
     e.preventDefault()
     setUploadStatus("uploading")
 
+    writeContract({ 
+      abi: SageNetCore.abi,
+      address: ContractAddresses.sageNetCore as `0x${string}`,
+      functionName: 'submitPaper',
+      args: [
+        'hash',
+        'title',
+        'paperAbstract',
+      ],
+   })
+
     // Simulate upload process
     setTimeout(() => {
       setUploadStatus("success")
     }, 2000)
   }
+
+  // contract interactions
+  const { writeContract } = useWriteContract();
+
+
+
 
   return (
     <div className="container py-8">
