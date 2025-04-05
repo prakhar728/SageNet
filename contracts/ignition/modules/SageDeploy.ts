@@ -20,6 +20,10 @@ async function main() {
   const sageNetReviewAddress = await sageNetReview.getAddress();
   console.log(`SageNetReview deployed to: ${sageNetReviewAddress}`);
 
+  // Authorize the Review contract to update paper status in the Core contract
+  await sageNetCore.setStatusUpdater(sageNetReviewAddress, true);
+  console.log(`Authorized SageNetReview to update paper statuses`);
+
   console.log("Deployment complete!");
 }
 
