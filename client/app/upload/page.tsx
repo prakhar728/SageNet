@@ -1,94 +1,110 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { X, Upload, FileText, Check } from "lucide-react"
-import { Separator } from "@/components/ui/separator"
-import { Switch } from "@/components/ui/switch"
-import { useWriteContract } from "wagmi"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { X, Upload, FileText, Check } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { useWriteContract } from "wagmi";
 import SageNetCore from "@/contracts/SageNetCore.json";
 import ContractAddresses from "@/contracts/DeploymentInfo.json";
 
 export default function UploadPage() {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [tags, setTags] = useState<string[]>([])
-  const [tagInput, setTagInput] = useState("")
-  const [enableBounty, setEnableBounty] = useState(false)
-  const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "success" | "error">("idle")
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [title, settitle] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
+  const [enableBounty, setEnableBounty] = useState(false);
+  const [fileIpfsHash, setfileIpfsHash] = useState("");
+  const [uploadStatus, setUploadStatus] = useState<
+    "idle" | "uploading" | "success" | "error"
+  >("idle");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0])
+      setSelectedFile(e.target.files[0]);
+      
     }
-  }
+  };
 
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && tagInput.trim() !== "") {
-      e.preventDefault()
+      e.preventDefault();
       if (!tags.includes(tagInput.trim())) {
-        setTags([...tags, tagInput.trim()])
+        setTags([...tags, tagInput.trim()]);
       }
-      setTagInput("")
+      setTagInput("");
     }
-  }
+  };
 
   const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter((tag) => tag !== tagToRemove))
-  }
+    setTags(tags.filter((tag) => tag !== tagToRemove));
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setUploadStatus("uploading")
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUploadStatus("uploading");
 
-    writeContract({ 
+    await writeContractAsync({
       abi: SageNetCore.abi,
       address: ContractAddresses.sageNetCore as `0x${string}`,
-      functionName: 'submitPaper',
-      args: [
-        'hash',
-        'title',
-        'paperAbstract',
-      ],
-   })
+      functionName: "submitPaper",
+      args: [fileIpfsHash, "title", "paperAbstract"],
+    });
 
-    // Simulate upload process
-    setTimeout(() => {
-      setUploadStatus("success")
-    }, 2000)
-  }
+    setUploadStatus("success");
+  };
 
   // contract interactions
-  const { writeContract } = useWriteContract();
-
-
-
+  const { writeContractAsync } = useWriteContract();
 
   return (
     <div className="container py-8">
       <div className="flex flex-col space-y-4">
         <h1 className="text-3xl font-bold">Upload Research Paper</h1>
         <p className="text-muted-foreground">
-          Share your research with the community and earn rewards through peer reviews.
+          Share your research with the community and earn rewards through peer
+          reviews.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Paper Details</CardTitle>
-              <CardDescription>Provide information about your research paper.</CardDescription>
+              <CardDescription>
+                Provide information about your research paper.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="title">Paper Title</Label>
-                <Input id="title" placeholder="Enter the title of your paper" required />
+                <Input
+                  id="title"
+                  placeholder="Enter the title of your paper"
+                  onChange={(e) => settitle(e.target.value)}
+                  value={title}
+                  required
+                />
               </div>
 
               <div className="space-y-2">
@@ -108,7 +124,9 @@ export default function UploadPage() {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="blockchain">Blockchain Technology</SelectItem>
+                    <SelectItem value="blockchain">
+                      Blockchain Technology
+                    </SelectItem>
                     <SelectItem value="cryptography">Cryptography</SelectItem>
                     <SelectItem value="defi">Decentralized Finance</SelectItem>
                     <SelectItem value="nft">NFTs & Digital Assets</SelectItem>
@@ -122,9 +140,16 @@ export default function UploadPage() {
                 <Label htmlFor="tags">Tags</Label>
                 <div className="flex flex-wrap gap-2 mb-2">
                   {tags.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                    <Badge
+                      key={tag}
+                      variant="secondary"
+                      className="flex items-center gap-1"
+                    >
                       {tag}
-                      <X className="h-3 w-3 cursor-pointer" onClick={() => handleRemoveTag(tag)} />
+                      <X
+                        className="h-3 w-3 cursor-pointer"
+                        onClick={() => handleRemoveTag(tag)}
+                      />
                     </Badge>
                   ))}
                 </div>
@@ -142,7 +167,9 @@ export default function UploadPage() {
           <Card>
             <CardHeader>
               <CardTitle>Upload PDF</CardTitle>
-              <CardDescription>Upload your research paper in PDF format.</CardDescription>
+              <CardDescription>
+                Upload your research paper in PDF format.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-center w-full">
@@ -156,22 +183,29 @@ export default function UploadPage() {
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                       <Upload className="w-10 h-10 mb-3 text-muted-foreground" />
                       <p className="mb-2 text-sm text-muted-foreground">
-                        <span className="font-semibold">Click to upload</span> or drag and drop
+                        <span className="font-semibold">Click to upload</span>{" "}
+                        or drag and drop
                       </p>
-                      <p className="text-xs text-muted-foreground">PDF (MAX. 20MB)</p>
+                      <p className="text-xs text-muted-foreground">
+                        PDF (MAX. 20MB)
+                      </p>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                       <FileText className="w-10 h-10 mb-3 text-primary" />
-                      <p className="mb-2 text-sm font-medium">{selectedFile.name}</p>
-                      <p className="text-xs text-muted-foreground">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                      <p className="mb-2 text-sm font-medium">
+                        {selectedFile.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
                       <Button
                         variant="ghost"
                         size="sm"
                         className="mt-2"
                         onClick={(e) => {
-                          e.preventDefault()
-                          setSelectedFile(null)
+                          e.preventDefault();
+                          setSelectedFile(null);
                         }}
                       >
                         Remove
@@ -194,22 +228,32 @@ export default function UploadPage() {
           <Card>
             <CardHeader>
               <CardTitle>Bounty Settings</CardTitle>
-              <CardDescription>Offer TestTokens as bounty for quality peer reviews.</CardDescription>
+              <CardDescription>
+                Offer TestTokens as bounty for quality peer reviews.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label htmlFor="bounty-switch">Enable Bounty</Label>
-                  <p className="text-sm text-muted-foreground">Incentivize reviewers with token rewards</p>
+                  <p className="text-sm text-muted-foreground">
+                    Incentivize reviewers with token rewards
+                  </p>
                 </div>
-                <Switch id="bounty-switch" checked={enableBounty} onCheckedChange={setEnableBounty} />
+                <Switch
+                  id="bounty-switch"
+                  checked={enableBounty}
+                  onCheckedChange={setEnableBounty}
+                />
               </div>
 
               {enableBounty && (
                 <>
                   <Separator className="my-4" />
                   <div className="space-y-2">
-                    <Label htmlFor="bounty-amount">Bounty Amount (TestTokens)</Label>
+                    <Label htmlFor="bounty-amount">
+                      Bounty Amount (TestTokens)
+                    </Label>
                     <div className="flex gap-2">
                       <Select defaultValue="50">
                         <SelectTrigger>
@@ -248,7 +292,9 @@ export default function UploadPage() {
             </Button>
             <Button
               type="submit"
-              disabled={uploadStatus === "uploading" || uploadStatus === "success"}
+              disabled={
+                uploadStatus === "uploading" || uploadStatus === "success"
+              }
               className="min-w-[120px]"
             >
               {uploadStatus === "uploading" ? (
@@ -269,6 +315,5 @@ export default function UploadPage() {
         </form>
       </div>
     </div>
-  )
+  );
 }
-
