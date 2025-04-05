@@ -13,10 +13,12 @@ interface ISageNetCore {
         uint8 status,
         string memory title,
         string memory paperAbstract,
-        uint256 _tokenId
+        uint256 _tokenId,
+        uint256 versionCount
     );
     function updatePaperStatus(uint256 tokenId, uint8 newStatus) external;
     function isPublisher(uint256 tokenId) external view returns (bool);
+    function isAuthor(uint256 tokenId) external view returns (bool);
 }
 
 /**
@@ -51,6 +53,7 @@ contract SageNetReview is Ownable {
     // Enhanced Bounty struct
     struct Bounty {
         uint256 paperId;         // Token ID of the paper
+        address creator;         // Address of the bounty creator (should be paper author)
         uint256 amount;          // Total amount of ETH as bounty
         uint256 deadline;        // Deadline for the review
         uint256 maxReviewers;    // Maximum number of reviewers who can receive the bounty
@@ -74,7 +77,7 @@ contract SageNetReview is Ownable {
     mapping(uint256 => uint256[]) private _acceptedReviews;
 
     // Events
-    event BountyCreated(uint256 indexed paperId, uint256 amount, uint256 deadline, uint256 maxReviewers);
+    event BountyCreated(uint256 indexed paperId, address indexed creator, uint256 amount, uint256 deadline, uint256 maxReviewers);
     event ReviewSubmitted(uint256 indexed reviewId, uint256 indexed paperId, address indexed reviewer);
     event ReviewStatusUpdated(uint256 indexed reviewId, ReviewStatus status);
     event BountyClaimed(uint256 indexed reviewId, address indexed reviewer, uint256 amount);
@@ -86,17 +89,27 @@ contract SageNetReview is Ownable {
         _;
     }
 
+    modifier onlyPaperAuthor(uint256 paperId) {
+        require(sageNetCore.isAuthor(paperId), "Only paper author can perform this action");
+        _;
+    }
+
     constructor(address _sageNetCoreAddress) Ownable(msg.sender) {
         sageNetCore = ISageNetCore(_sageNetCoreAddress);
     }
 
     /**
-     * @dev Creates a bounty for a paper to incentivize reviews
+     * @dev Creates a bounty for a paper to incentivize reviews - only the paper author can do this
      * @param paperId The ID of the paper
      * @param deadline The deadline for review submissions
      * @param maxReviewers Maximum number of reviewers who can receive the bounty
      */
-    function createBounty(uint256 paperId, uint256 deadline, uint256 maxReviewers) public payable paperExists(paperId) {
+    function createBounty(uint256 paperId, uint256 deadline, uint256 maxReviewers) 
+        public 
+        payable 
+        paperExists(paperId)
+        onlyPaperAuthor(paperId)
+    {
         require(msg.value > 0, "Bounty amount must be greater than 0");
         require(deadline > block.timestamp, "Deadline must be in the future");
         require(maxReviewers > 0, "Must allow at least one reviewer");
@@ -105,6 +118,7 @@ contract SageNetReview is Ownable {
         // Create the bounty
         bounties[paperId] = Bounty({
             paperId: paperId,
+            creator: msg.sender,
             amount: msg.value,
             deadline: deadline,
             maxReviewers: maxReviewers,
@@ -112,7 +126,10 @@ contract SageNetReview is Ownable {
             active: true
         });
         
-        emit BountyCreated(paperId, msg.value, deadline, maxReviewers);
+        // Set paper status to InReview
+        sageNetCore.updatePaperStatus(paperId, 2); // 2 = InReview
+        
+        emit BountyCreated(paperId, msg.sender, msg.value, deadline, maxReviewers);
     }
 
     /**
@@ -122,6 +139,14 @@ contract SageNetReview is Ownable {
      * @return reviewId The ID of the newly created review
      */
     function submitReview(uint256 paperId, string memory ipfsHash) public paperExists(paperId) returns (uint256) {
+        // Verify the paper has an active bounty
+        require(bounties[paperId].active, "Paper doesn't have an active bounty for reviews");
+        require(bounties[paperId].acceptedReviews < bounties[paperId].maxReviewers, "Maximum reviews already reached");
+        require(block.timestamp <= bounties[paperId].deadline, "Review deadline has passed");
+        
+        // Make sure the reviewer is not the author
+        require(!sageNetCore.isAuthor(paperId), "Author cannot review their own paper");
+        
         // Increment the review ID counter
         _currentReviewId += 1;
         uint256 reviewId = _currentReviewId;
@@ -148,7 +173,7 @@ contract SageNetReview is Ownable {
     }
 
     /**
-     * @dev Accepts a review and pays out a portion of the bounty
+     * @dev Accepts a review and pays out a portion of the bounty - only the paper author can do this
      * @param reviewId The ID of the review
      */
     function acceptReview(uint256 reviewId) public {
@@ -156,11 +181,8 @@ contract SageNetReview is Ownable {
         require(review.reviewId == reviewId, "Review does not exist");
         require(review.status == ReviewStatus.Pending, "Review is not pending");
         
-        // Check if caller is owner or publisher of the paper
-        require(
-            owner() == msg.sender || sageNetCore.isPublisher(review.paperId),
-            "Only owner or publisher can accept reviews"
-        );
+        // Only the paper author can accept reviews
+        require(sageNetCore.isAuthor(review.paperId), "Only the paper author can accept reviews");
         
         Bounty storage bounty = bounties[review.paperId];
         require(bounty.amount > 0, "No bounty available for this paper");
@@ -185,9 +207,6 @@ contract SageNetReview is Ownable {
             emit BountyCompleted(review.paperId);
         }
         
-        // Update paper status to InReview (if not already)
-        sageNetCore.updatePaperStatus(review.paperId, 2); // 2 = InReview
-        
         // Transfer bounty to reviewer
         (bool success, ) = payable(review.reviewer).call{value: reviewerBounty}("");
         require(success, "Transfer failed");
@@ -197,7 +216,7 @@ contract SageNetReview is Ownable {
     }
 
     /**
-     * @dev Rejects a review
+     * @dev Rejects a review - only the paper author can do this
      * @param reviewId The ID of the review
      */
     function rejectReview(uint256 reviewId) public {
@@ -205,11 +224,8 @@ contract SageNetReview is Ownable {
         require(review.reviewId == reviewId, "Review does not exist");
         require(review.status == ReviewStatus.Pending, "Review is not pending");
         
-        // Check if caller is owner or publisher of the paper
-        require(
-            owner() == msg.sender || sageNetCore.isPublisher(review.paperId),
-            "Only owner or publisher can reject reviews"
-        );
+        // Only the paper author can reject reviews
+        require(sageNetCore.isAuthor(review.paperId), "Only the paper author can reject reviews");
         
         review.status = ReviewStatus.Rejected;
         
@@ -283,12 +299,13 @@ contract SageNetReview is Ownable {
     }
 
     /**
-     * @dev Reclaim remaining bounty after deadline has passed
+     * @dev Reclaim remaining bounty after deadline has passed - only the bounty creator can do this
      * @param paperId The ID of the paper
      */
     function reclaimBounty(uint256 paperId) public {
         Bounty storage bounty = bounties[paperId];
         require(bounty.amount > 0, "No bounty exists for this paper");
+        require(bounty.creator == msg.sender, "Only bounty creator can reclaim funds");
         require(block.timestamp > bounty.deadline, "Deadline has not passed yet");
         require(bounty.active, "Bounty is no longer active");
         
@@ -299,7 +316,7 @@ contract SageNetReview is Ownable {
         // Mark bounty as inactive
         bounty.active = false;
         
-        // Return remaining amount to whoever called this function (typically the original bounty creator)
+        // Return remaining amount to the bounty creator
         (bool success, ) = payable(msg.sender).call{value: remainingAmount}("");
         require(success, "Transfer failed");
         
