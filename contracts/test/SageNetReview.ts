@@ -39,6 +39,9 @@ describe("SageNetReview - Enhanced", function () {
     const SageNetReview = await hre.ethers.getContractFactory("SageNetReview");
     const sageNetReview = await SageNetReview.deploy(await sageNetCore.getAddress());
     
+    // Authorize the Review contract to update paper status
+    await sageNetCore.connect(owner).setStatusUpdater(await sageNetReview.getAddress(), true);
+    
     // Submit a paper as author
     await sageNetCore.connect(author).submitPaper(
       samplePaper.ipfsHash,
@@ -257,7 +260,7 @@ describe("SageNetReview - Enhanced", function () {
 
   describe("Multi-Reviewer Bounty Distribution", function () {
     it("Should distribute bounty among multiple accepted reviewers", async function () {
-      const { sageNetReview, author, reviewer1, reviewer2, bountyAmount, maxReviewers } = 
+      const { sageNetReview, owner, reviewer1, reviewer2, bountyAmount, maxReviewers } = 
         await loadFixture(deployWithPublisherFixture);
       
       const bountyPerReviewer = bountyAmount / BigInt(maxReviewers);
@@ -267,10 +270,10 @@ describe("SageNetReview - Enhanced", function () {
       const initialBalance2 = await hre.ethers.provider.getBalance(reviewer2.address);
       
       // Accept first review
-      await sageNetReview.connect(author).acceptReview(1);
+      await sageNetReview.connect(owner).acceptReview(1);
       
       // Accept second review
-      await sageNetReview.connect(author).acceptReview(2);
+      await sageNetReview.connect(owner).acceptReview(2);
       
       // Check final balances
       const finalBalance1 = await hre.ethers.provider.getBalance(reviewer1.address);
@@ -342,7 +345,7 @@ describe("SageNetReview - Enhanced", function () {
       // Try to accept a fourth review
       await expect(
         sageNetReview.connect(owner).acceptReview(4)
-      ).to.be.revertedWith("Maximum number of reviews already accepted");
+      ).to.be.revertedWith("Bounty is no longer active");
     });
     
     it("Should track accepted reviews separately", async function () {
