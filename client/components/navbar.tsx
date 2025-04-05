@@ -11,7 +11,6 @@ import { Menu } from "lucide-react";
 
 export default function Navbar() {
   const pathname = usePathname();
-  const [isWalletConnected, setIsWalletConnected] = useState(false);
 
   const routes = [
     { href: "/", label: "Home" },
@@ -20,10 +19,6 @@ export default function Navbar() {
     { href: "/upload", label: "Upload Paper" },
     { href: "/publication", label: "Publication" },
   ];
-
-  const connectWallet = () => {
-    setIsWalletConnected(true);
-  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -50,20 +45,7 @@ export default function Navbar() {
         </div>
         <div className="flex items-center gap-2">
           <ModeToggle />
-          {isWalletConnected ? (
-            <Button variant="outline" size="sm" className="hidden md:flex">
-              <Wallet className="mr-2 h-4 w-4" />
-              0x1a2...3b4c
-            </Button>
-          ) : (
-            <Button
-              onClick={connectWallet}
-              size="sm"
-              className="hidden md:flex"
-            >
-              Connect Wallet
-            </Button>
-          )}
+          <appkit-button />
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="md:hidden">
@@ -86,16 +68,7 @@ export default function Navbar() {
                     {route.label}
                   </Link>
                 ))}
-                {isWalletConnected ? (
-                  <Button variant="outline" size="sm" className="justify-start">
-                    <Wallet className="mr-2 h-4 w-4" />
-                    0x1a2...3b4c
-                  </Button>
-                ) : (
-                  <Button onClick={connectWallet} size="sm">
-                    Connect Wallet
-                  </Button>
-                )}
+                <appkit-button />
               </nav>
             </SheetContent>
           </Sheet>
