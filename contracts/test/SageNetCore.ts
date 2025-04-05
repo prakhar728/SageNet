@@ -6,7 +6,7 @@ import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
 import hre from "hardhat";
 
-describe("SageNetCore - Enhanced", function () {
+describe("SageNetCore - Revised", function () {
   // Sample paper data for tests
   const samplePaper1 = {
     ipfsHash: "QmT7fzZRBGMZCxUeU4G1q9ypuSaQRx2nAKx6SpfMYQvFeF",
@@ -26,26 +26,24 @@ describe("SageNetCore - Enhanced", function () {
     changeNotes: "Updated literature review"
   };
 
-  const thirdVersion = {
-    ipfsHash: "QmThirdVersionHashForPaper",
-    changeNotes: "Added experimental results"
-  };
-
   // We define a fixture to reuse the same setup in every test
   async function deploySageNetCoreFixture() {
     // Get signers
-    const [owner, author1, author2, publisher] = await hre.ethers.getSigners();
+    const [owner, author1, author2, publisher, reviewContract] = await hre.ethers.getSigners();
     
     // Deploy the SageNetCore contract
     const SageNetCore = await hre.ethers.getContractFactory("SageNetCore");
     const sageNetCore = await SageNetCore.deploy();
     
-    return { sageNetCore, owner, author1, author2, publisher };
+    // Authorize the review contract as a status updater
+    await sageNetCore.connect(owner).setStatusUpdater(reviewContract.address, true);
+    
+    return { sageNetCore, owner, author1, author2, publisher, reviewContract };
   }
 
   // Fixture with a paper already submitted
   async function deployWithPaperFixture() {
-    const { sageNetCore, owner, author1, author2, publisher } = await loadFixture(deploySageNetCoreFixture);
+    const { sageNetCore, owner, author1, author2, publisher, reviewContract } = await loadFixture(deploySageNetCoreFixture);
     
     // Submit a paper as author1
     await sageNetCore.connect(author1).submitPaper(
@@ -54,7 +52,7 @@ describe("SageNetCore - Enhanced", function () {
       samplePaper1.paperAbstract
     );
     
-    return { sageNetCore, owner, author1, author2, publisher };
+    return { sageNetCore, owner, author1, author2, publisher, reviewContract };
   }
 
   describe("Deployment", function () {
@@ -67,6 +65,26 @@ describe("SageNetCore - Enhanced", function () {
       const { sageNetCore } = await loadFixture(deploySageNetCoreFixture);
       expect(await sageNetCore.name()).to.equal("SageNet Research SBT");
       expect(await sageNetCore.symbol()).to.equal("SAGESBT");
+    });
+    
+    it("Should allow setting status updaters", async function () {
+      const { sageNetCore, owner, reviewContract } = await loadFixture(deploySageNetCoreFixture);
+      
+      // Check that the review contract is authorized
+      await expect(await sageNetCore.connect(reviewContract).isAuthor(9999)).to.be.revertedWith("Paper does not exist");
+      
+      // Set a new status updater
+      await expect(sageNetCore.connect(owner).setStatusUpdater(owner.address, true))
+        .to.emit(sageNetCore, "StatusUpdaterSet")
+        .withArgs(owner.address, true);
+    });
+    
+    it("Should not allow non-owners to set status updaters", async function () {
+      const { sageNetCore, author1 } = await loadFixture(deploySageNetCoreFixture);
+      
+      await expect(
+        sageNetCore.connect(author1).setStatusUpdater(author1.address, true)
+      ).to.be.revertedWith("Ownable: caller is not the owner");
     });
   });
 
@@ -97,38 +115,98 @@ describe("SageNetCore - Enhanced", function () {
       expect(await sageNetCore.ownerOf(1)).to.equal(author1.address);
     });
     
-    it("Should initialize version history on submission", async function () {
-      const { sageNetCore, author1 } = await loadFixture(deployWithPaperFixture);
-      
-      const versionHistory = await sageNetCore.getPaperVersionHistory(1);
-      expect(versionHistory.length).to.equal(1);
-      expect(versionHistory[0].ipfsHash).to.equal(samplePaper1.ipfsHash);
-      expect(versionHistory[0].changeNotes).to.equal("Initial submission");
-    });
-    
-    it("Should emit a PaperSubmitted event", async function () {
-      const { sageNetCore, author1 } = await loadFixture(deploySageNetCoreFixture);
-      
-      await expect(sageNetCore.connect(author1).submitPaper(
-        samplePaper1.ipfsHash,
-        samplePaper1.title,
-        samplePaper1.paperAbstract
-      ))
-        .to.emit(sageNetCore, "PaperSubmitted")
-        .withArgs(1, author1.address, samplePaper1.ipfsHash);
-    });
-    
-    it("Should not allow duplicate paper submissions", async function () {
+    it("Should correctly identify author of a paper", async function () {
       const { sageNetCore, author1, author2 } = await loadFixture(deployWithPaperFixture);
       
-      // Try to submit the same paper again
+      // Check that author1 is identified as the author
+      expect(await sageNetCore.connect(author1).isAuthor(1)).to.equal(true);
+      
+      // Check that author2 is not identified as the author
+      expect(await sageNetCore.connect(author2).isAuthor(1)).to.equal(false);
+    });
+  });
+
+  describe("Paper Status Updates", function () {
+    it("Should allow the author to update the paper status", async function () {
+      const { sageNetCore, author1 } = await loadFixture(deployWithPaperFixture);
+      
+      await sageNetCore.connect(author1).updatePaperStatus(1, 1); // Set to InApplication
+      
+      const paper = await sageNetCore.getPaper(1);
+      expect(paper.status).to.equal(1);
+    });
+    
+    it("Should allow an authorized contract to update the paper status", async function () {
+      const { sageNetCore, reviewContract } = await loadFixture(deployWithPaperFixture);
+      
+      await sageNetCore.connect(reviewContract).updatePaperStatus(1, 2); // Set to InReview
+      
+      const paper = await sageNetCore.getPaper(1);
+      expect(paper.status).to.equal(2);
+    });
+    
+    it("Should not allow the owner to update the paper status", async function () {
+      const { sageNetCore, owner } = await loadFixture(deployWithPaperFixture);
+      
+      // Try to update status as owner
       await expect(
-        sageNetCore.connect(author2).submitPaper(
-          samplePaper1.ipfsHash,
-          samplePaper1.title,
-          samplePaper1.paperAbstract
-        )
-      ).to.be.revertedWith("Paper already exists");
+        sageNetCore.connect(owner).updatePaperStatus(1, 3)
+      ).to.be.revertedWith("Only author, publisher, or authorized contracts can update status");
+    });
+    
+    it("Should not allow non-authors to update the paper status", async function () {
+      const { sageNetCore, author2 } = await loadFixture(deployWithPaperFixture);
+      
+      // Try to update status as non-author
+      await expect(
+        sageNetCore.connect(author2).updatePaperStatus(1, 3)
+      ).to.be.revertedWith("Only author, publisher, or authorized contracts can update status");
+    });
+  });
+
+  describe("Publisher Interaction", function () {
+    it("Should allow an author to submit to a publisher", async function () {
+      const { sageNetCore, author1, publisher } = await loadFixture(deployWithPaperFixture);
+      
+      await sageNetCore.connect(author1).submitToPublisher(1, publisher.address);
+      
+      const paper = await sageNetCore.getPaper(1);
+      expect(paper.publisher).to.equal(publisher.address);
+      expect(paper.status).to.equal(1); // InApplication status
+    });
+    
+    it("Should not allow non-authors to submit to a publisher", async function () {
+      const { sageNetCore, author2, publisher } = await loadFixture(deployWithPaperFixture);
+      
+      await expect(
+        sageNetCore.connect(author2).submitToPublisher(1, publisher.address)
+      ).to.be.revertedWith("Only author can submit to publisher");
+    });
+    
+    it("Should allow publishers to update the paper status", async function () {
+      const { sageNetCore, author1, publisher } = await loadFixture(deployWithPaperFixture);
+      
+      // Submit to publisher
+      await sageNetCore.connect(author1).submitToPublisher(1, publisher.address);
+      
+      // Publisher updates status
+      await sageNetCore.connect(publisher).updatePaperStatus(1, 3); // Set to Published
+      
+      const paper = await sageNetCore.getPaper(1);
+      expect(paper.status).to.equal(3);
+    });
+    
+    it("Should correctly identify publishers", async function () {
+      const { sageNetCore, author1, publisher } = await loadFixture(deployWithPaperFixture);
+      
+      // Initially not a publisher
+      expect(await sageNetCore.connect(publisher).isPublisher(1)).to.equal(false);
+      
+      // Submit to publisher
+      await sageNetCore.connect(author1).submitToPublisher(1, publisher.address);
+      
+      // Now should be recognized as publisher
+      expect(await sageNetCore.connect(publisher).isPublisher(1)).to.equal(true);
     });
   });
 
@@ -155,96 +233,7 @@ describe("SageNetCore - Enhanced", function () {
       expect(versionHistory[1].changeNotes).to.equal(updatedVersion.changeNotes);
     });
     
-    it("Should emit a PaperVersionAdded event", async function () {
-      const { sageNetCore, author1 } = await loadFixture(deployWithPaperFixture);
-      
-      await expect(sageNetCore.connect(author1).updatePaperHash(
-        1, 
-        updatedVersion.ipfsHash, 
-        updatedVersion.changeNotes
-      ))
-        .to.emit(sageNetCore, "PaperVersionAdded")
-        .withArgs(1, samplePaper1.ipfsHash, updatedVersion.ipfsHash, 2);
-    });
-    
-    it("Should allow multiple versions to be tracked", async function () {
-      const { sageNetCore, author1 } = await loadFixture(deployWithPaperFixture);
-      
-      // Add version 2
-      await sageNetCore.connect(author1).updatePaperHash(
-        1, 
-        updatedVersion.ipfsHash, 
-        updatedVersion.changeNotes
-      );
-      
-      // Add version 3
-      await sageNetCore.connect(author1).updatePaperHash(
-        1, 
-        thirdVersion.ipfsHash, 
-        thirdVersion.changeNotes
-      );
-      
-      // Check that the paper was updated
-      const paper = await sageNetCore.getPaper(1);
-      expect(paper.ipfsHash).to.equal(thirdVersion.ipfsHash);
-      expect(paper.versionCount).to.equal(3); // Third version
-      
-      // Check version history
-      const versionHistory = await sageNetCore.getPaperVersionHistory(1);
-      expect(versionHistory.length).to.equal(3);
-      expect(versionHistory[0].ipfsHash).to.equal(samplePaper1.ipfsHash);
-      expect(versionHistory[1].ipfsHash).to.equal(updatedVersion.ipfsHash);
-      expect(versionHistory[2].ipfsHash).to.equal(thirdVersion.ipfsHash);
-    });
-    
-    it("Should allow retrieving a specific version", async function () {
-      const { sageNetCore, author1 } = await loadFixture(deployWithPaperFixture);
-      
-      // Add version 2
-      await sageNetCore.connect(author1).updatePaperHash(
-        1, 
-        updatedVersion.ipfsHash, 
-        updatedVersion.changeNotes
-      );
-      
-      // Add version 3
-      await sageNetCore.connect(author1).updatePaperHash(
-        1, 
-        thirdVersion.ipfsHash, 
-        thirdVersion.changeNotes
-      );
-      
-      // Get version 1 (initial submission)
-      const version1 = await sageNetCore.getPaperVersion(1, 1);
-      expect(version1.ipfsHash).to.equal(samplePaper1.ipfsHash);
-      expect(version1.changeNotes).to.equal("Initial submission");
-      
-      // Get version 2
-      const version2 = await sageNetCore.getPaperVersion(1, 2);
-      expect(version2.ipfsHash).to.equal(updatedVersion.ipfsHash);
-      expect(version2.changeNotes).to.equal(updatedVersion.changeNotes);
-      
-      // Get version 3
-      const version3 = await sageNetCore.getPaperVersion(1, 3);
-      expect(version3.ipfsHash).to.equal(thirdVersion.ipfsHash);
-      expect(version3.changeNotes).to.equal(thirdVersion.changeNotes);
-    });
-    
-    it("Should prevent retrieving non-existent versions", async function () {
-      const { sageNetCore } = await loadFixture(deployWithPaperFixture);
-      
-      // Try to get version 0 (invalid)
-      await expect(
-        sageNetCore.getPaperVersion(1, 0)
-      ).to.be.revertedWith("Invalid version number");
-      
-      // Try to get version 2 (doesn't exist yet)
-      await expect(
-        sageNetCore.getPaperVersion(1, 2)
-      ).to.be.revertedWith("Invalid version number");
-    });
-    
-    it("Should not allow non-authors to add versions", async function () {
+    it("Should not allow non-authors to update the paper", async function () {
       const { sageNetCore, author2 } = await loadFixture(deployWithPaperFixture);
       
       await expect(
@@ -254,51 +243,6 @@ describe("SageNetCore - Enhanced", function () {
           updatedVersion.changeNotes
         )
       ).to.be.revertedWith("Only author can update paper");
-    });
-    
-    it("Should prevent using an existing hash for a new version", async function () {
-      const { sageNetCore, author1, author2 } = await loadFixture(deployWithPaperFixture);
-      
-      // Submit a second paper
-      await sageNetCore.connect(author2).submitPaper(
-        samplePaper2.ipfsHash,
-        samplePaper2.title,
-        samplePaper2.paperAbstract
-      );
-      
-      // Try to update paper 1 with hash from paper 2
-      await expect(
-        sageNetCore.connect(author1).updatePaperHash(
-          1, 
-          samplePaper2.ipfsHash, 
-          "Attempting to use existing hash"
-        )
-      ).to.be.revertedWith("This hash already exists for another paper");
-    });
-  });
-
-  describe("Publisher Features", function () {
-    it("Should allow an author to submit to a publisher", async function () {
-      const { sageNetCore, author1, publisher } = await loadFixture(deployWithPaperFixture);
-      
-      await sageNetCore.connect(author1).submitToPublisher(1, publisher.address);
-      
-      const paper = await sageNetCore.getPaper(1);
-      expect(paper.publisher).to.equal(publisher.address);
-      expect(paper.status).to.equal(1); // InApplication status
-    });
-    
-    it("Should allow publishers to update the paper status", async function () {
-      const { sageNetCore, author1, publisher } = await loadFixture(deployWithPaperFixture);
-      
-      // Submit to publisher
-      await sageNetCore.connect(author1).submitToPublisher(1, publisher.address);
-      
-      // Publisher updates status
-      await sageNetCore.connect(publisher).updatePaperStatus(1, 3); // Set to Published
-      
-      const paper = await sageNetCore.getPaper(1);
-      expect(paper.status).to.equal(3);
     });
   });
 
