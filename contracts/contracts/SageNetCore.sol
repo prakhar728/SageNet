@@ -3,8 +3,6 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "hardhat/console.sol";
-
 
 /**
  * @title SageNetCore
@@ -23,16 +21,24 @@ contract SageNetCore is ERC721, Ownable {
         Published     // Finalized and published
     }
 
+    // Version struct to track paper revision history
+    struct Version {
+        string ipfsHash;         // IPFS hash of the paper
+        uint256 timestamp;       // Time of version submission
+        string changeNotes;      // Notes describing the changes in this version
+    }
+
     // Paper struct to store metadata
     struct Paper {
-        string ipfsHash;         // IPFS hash of the paper
+        string ipfsHash;         // Current IPFS hash of the paper
         address author;          // Author's address
         address publisher;       // Publisher's address (if submitted to one)
         uint256 timestamp;       // Time of submission
         PaperStatus status;      // Current status
         string title;            // Paper title
         string paperAbstract;    // Brief description
-        uint256 _tokenId;         // Associated SBT ID
+        uint256 _tokenId;        // Associated SBT ID
+        uint256 versionCount;    // Number of versions this paper has
     }
 
     // Mapping from token ID to Paper
@@ -43,10 +49,14 @@ contract SageNetCore is ERC721, Ownable {
     
     // Mapping from author address to their token IDs
     mapping(address => uint256[]) private _authorPapers;
+    
+    // Mapping from token ID to array of historical versions
+    mapping(uint256 => Version[]) private _paperVersions;
 
     // Events
     event PaperSubmitted(uint256 indexed tokenId, address indexed author, string ipfsHash);
     event PaperStatusUpdated(uint256 indexed tokenId, PaperStatus newStatus);
+    event PaperVersionAdded(uint256 indexed tokenId, string oldHash, string newHash, uint256 versionNumber);
 
     constructor() ERC721("SageNet Research SBT", "SAGESBT") Ownable(msg.sender) {}
 
@@ -67,7 +77,6 @@ contract SageNetCore is ERC721, Ownable {
         
         // Increment the token ID counter
         _currentTokenId += 1;
-        console.log(_currentTokenId);
         uint256 tokenId = _currentTokenId;
         
         // Mint the SBT to the author
@@ -82,8 +91,18 @@ contract SageNetCore is ERC721, Ownable {
             status: PaperStatus.Draft,
             title: title,
             paperAbstract: paperAbstract,
-            _tokenId: tokenId
+            _tokenId: tokenId,
+            versionCount: 1
         });
+        
+        // Store initial version in history
+        Version memory initialVersion = Version({
+            ipfsHash: ipfsHash,
+            timestamp: block.timestamp,
+            changeNotes: "Initial submission"
+        });
+        
+        _paperVersions[tokenId].push(initialVersion);
         
         // Update mappings
         _hashToTokenId[ipfsHash] = tokenId;
@@ -131,22 +150,42 @@ contract SageNetCore is ERC721, Ownable {
     }
 
     /**
-     * @dev Updates the IPFS hash for a paper (only author can update)
+     * @dev Updates the IPFS hash for a paper (only author can update) and tracks version history
      * @param tokenId The ID of the paper's SBT
      * @param newIpfsHash The new IPFS hash
+     * @param changeNotes Notes describing the changes in this version
      */
-    function updatePaperHash(uint256 tokenId, string memory newIpfsHash) public {
+    function updatePaperHash(uint256 tokenId, string memory newIpfsHash, string memory changeNotes) public {
         require(exists(tokenId), "Paper does not exist");
         require(papers[tokenId].author == msg.sender, "Only author can update paper");
+        require(_hashToTokenId[newIpfsHash] == 0, "This hash already exists for another paper");
+        
+        // Store current version in history
+        string memory oldHash = papers[tokenId].ipfsHash;
+        uint256 newVersionNum = papers[tokenId].versionCount + 1;
+        
+        // Create new version record
+        Version memory newVersion = Version({
+            ipfsHash: newIpfsHash,
+            timestamp: block.timestamp,
+            changeNotes: changeNotes
+        });
+        
+        // Add to paper version history
+        _paperVersions[tokenId].push(newVersion);
         
         // Remove old hash mapping
-        delete _hashToTokenId[papers[tokenId].ipfsHash];
+        delete _hashToTokenId[oldHash];
         
-        // Update paper with new hash
+        // Update paper with new hash and increment version count
         papers[tokenId].ipfsHash = newIpfsHash;
+        papers[tokenId].versionCount = newVersionNum;
         
         // Add new hash mapping
         _hashToTokenId[newIpfsHash] = tokenId;
+        
+        // Emit event
+        emit PaperVersionAdded(tokenId, oldHash, newIpfsHash, newVersionNum);
     }
 
     /**
@@ -166,6 +205,29 @@ contract SageNetCore is ERC721, Ownable {
     function getPaper(uint256 tokenId) public view returns (Paper memory) {
         require(exists(tokenId), "Paper does not exist");
         return papers[tokenId];
+    }
+
+    /**
+     * @dev Gets the version history of a paper
+     * @param tokenId The ID of the paper's SBT
+     * @return Array of Version structs representing the paper's history
+     */
+    function getPaperVersionHistory(uint256 tokenId) public view returns (Version[] memory) {
+        require(exists(tokenId), "Paper does not exist");
+        return _paperVersions[tokenId];
+    }
+    
+    /**
+     * @dev Gets a specific version of a paper
+     * @param tokenId The ID of the paper's SBT
+     * @param versionNumber The version number to retrieve (1-based index)
+     * @return Version struct for the specified version
+     */
+    function getPaperVersion(uint256 tokenId, uint256 versionNumber) public view returns (Version memory) {
+        require(exists(tokenId), "Paper does not exist");
+        require(versionNumber > 0 && versionNumber <= papers[tokenId].versionCount, "Invalid version number");
+        
+        return _paperVersions[tokenId][versionNumber - 1]; // Adjust for 0-based array indexing
     }
 
     /**
@@ -210,6 +272,6 @@ contract SageNetCore is ERC721, Ownable {
      * @return bool True if the token exists
      */
     function exists(uint256 tokenId) public view returns (bool) {
-        return tokenId > 0 && tokenId <= _currentTokenId && ownerOf(tokenId) != address(0);
+        return tokenId > 0 && tokenId <= _currentTokenId && _ownerOf(tokenId) != address(0);
     }
 }
