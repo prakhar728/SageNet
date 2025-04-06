@@ -28,6 +28,8 @@ import { Switch } from "@/components/ui/switch";
 import { useWriteContract } from "wagmi";
 import SageNetCore from "@/contracts/SageNetCore.json";
 import ContractAddresses from "@/contracts/DeploymentInfo.json";
+import { BountyInfo, PaperFormState } from "@/utils/PaperFormTypes";
+import { uploadFile } from "@/utils/ipfs";
 
 export default function UploadPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -39,26 +41,68 @@ export default function UploadPage() {
   const [uploadStatus, setUploadStatus] = useState<
     "idle" | "uploading" | "success" | "error"
   >("idle");
+  const [formState, setFormState] = useState<PaperFormState>({
+    // Paper details
+    title: "",
+    abstract: "",
+    category: "",
+    tags: [],
+    tagInput: "",
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // File upload
+    selectedFile: null,
+    fileIpfsHash: "",
+
+    // Bounty settings
+    bountyInfo: {
+      enabled: false,
+      amount: "50",
+      reviewers: "3",
+    },
+
+    // Form status
+    uploadStatus: "idle",
+  });
+
+  const updateFormState = (fieldName: keyof PaperFormState, value: any) => {
+    setFormState((prev) => ({
+      ...prev,
+      [fieldName]: value,
+    }));
+  };
+
+  const updateBountyInfo = (fieldName: keyof BountyInfo, value: any) => {
+    setFormState((prev) => ({
+      ...prev,
+      bountyInfo: {
+        ...prev.bountyInfo,
+        [fieldName]: value,
+      },
+    }));
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
-      
+      const fileCid = await uploadFile(e.target.files[0]);
+      updateFormState("selectedFile", fileCid);
     }
   };
 
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && tagInput.trim() !== "") {
+    if (e.key === "Enter" && formState.tagInput.trim() !== "") {
       e.preventDefault();
-      if (!tags.includes(tagInput.trim())) {
-        setTags([...tags, tagInput.trim()]);
+      if (!formState.tags.includes(formState.tagInput.trim())) {
+        updateFormState("tags", [...formState.tags, formState.tagInput.trim()]);
       }
-      setTagInput("");
+      updateFormState("tagInput", "");
     }
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter((tag) => tag !== tagToRemove));
+    updateFormState(
+      "tags",
+      formState.tags.filter((tag) => tag !== tagToRemove)
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -69,7 +113,7 @@ export default function UploadPage() {
       abi: SageNetCore.abi,
       address: ContractAddresses.sageNetCore as `0x${string}`,
       functionName: "submitPaper",
-      args: [fileIpfsHash, "title", "paperAbstract"],
+      args: [formState.selectedFile, formState.title, formState.abstract],
     });
 
     setUploadStatus("success");
@@ -101,8 +145,8 @@ export default function UploadPage() {
                 <Input
                   id="title"
                   placeholder="Enter the title of your paper"
-                  onChange={(e) => settitle(e.target.value)}
-                  value={title}
+                  value={formState.title}
+                  onChange={(e) => updateFormState("title", e.target.value)}
                   required
                 />
               </div>
@@ -113,13 +157,17 @@ export default function UploadPage() {
                   id="abstract"
                   placeholder="Provide a brief summary of your research"
                   className="min-h-[100px]"
+                  value={formState.abstract}
+                  onChange={(e) => updateFormState("abstract", e.target.value)}
                   required
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
-                <Select>
+                <Select
+                  onValueChange={(value) => updateFormState("category", value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
@@ -139,7 +187,7 @@ export default function UploadPage() {
               <div className="space-y-2">
                 <Label htmlFor="tags">Tags</Label>
                 <div className="flex flex-wrap gap-2 mb-2">
-                  {tags.map((tag) => (
+                  {formState.tags.map((tag) => (
                     <Badge
                       key={tag}
                       variant="secondary"
@@ -156,8 +204,8 @@ export default function UploadPage() {
                 <Input
                   id="tags"
                   placeholder="Add tags (press Enter to add)"
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
+                  value={formState.tagInput}
+                  onChange={(e) => updateFormState("tagInput", e.target.value)}
                   onKeyDown={handleAddTag}
                 />
               </div>
@@ -242,8 +290,10 @@ export default function UploadPage() {
                 </div>
                 <Switch
                   id="bounty-switch"
-                  checked={enableBounty}
-                  onCheckedChange={setEnableBounty}
+                  checked={formState.bountyInfo.enabled}
+                  onCheckedChange={(checked) =>
+                    updateBountyInfo("enabled", checked)
+                  }
                 />
               </div>
 
@@ -255,7 +305,13 @@ export default function UploadPage() {
                       Bounty Amount (TestTokens)
                     </Label>
                     <div className="flex gap-2">
-                      <Select defaultValue="50">
+                      <Select
+                        defaultValue="50"
+                        value={formState.bountyInfo.amount}
+                        onValueChange={(value) =>
+                          updateBountyInfo("amount", value)
+                        }
+                      >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -266,7 +322,13 @@ export default function UploadPage() {
                           <SelectItem value="200">200 TestTokens</SelectItem>
                         </SelectContent>
                       </Select>
-                      <Select defaultValue="3">
+                      <Select
+                        defaultValue="3"
+                        value={formState.bountyInfo.reviewers}
+                        onValueChange={(value) =>
+                          updateBountyInfo("reviewers", value)
+                        }
+                      >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
