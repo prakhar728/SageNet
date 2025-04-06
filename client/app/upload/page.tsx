@@ -43,10 +43,10 @@ export default function UploadPage() {
   >("idle");
   const [formState, setFormState] = useState<PaperFormState>({
     // Paper details
-    title: "",
-    abstract: "",
-    category: "",
-    tags: [],
+    title: "Predictors of Psychological Distress Following Serious Injury",
+    abstract: "https://chatgpt.com/c/67f22b3e-e68c-8006-8d8b-6f26e797ec06",
+    category: "privacy",
+    tags: ["psychology"],
     tagInput: "",
 
     // File upload
@@ -83,8 +83,9 @@ export default function UploadPage() {
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const fileCid = await uploadFile(e.target.files[0]);
+      const fileCid = await uploadFile(e.target.files);
       updateFormState("selectedFile", fileCid);
+      setSelectedFile(e.target.files[0]);
     }
   };
 
@@ -120,7 +121,10 @@ export default function UploadPage() {
   };
 
   // contract interactions
-  const { writeContractAsync } = useWriteContract();
+  const { writeContractAsync, isError } = useWriteContract();
+
+  console.log(isError && isError);
+  
 
   return (
     <div className="container py-8">
@@ -273,7 +277,7 @@ export default function UploadPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle>Bounty Settings</CardTitle>
               <CardDescription>
@@ -346,12 +350,12 @@ export default function UploadPage() {
                 </>
               )}
             </CardContent>
-          </Card>
+          </Card> */}
 
           <div className="flex justify-end gap-4">
-            <Button variant="outline" type="button">
+            {/* <Button variant="outline" type="button">
               Save as Draft
-            </Button>
+            </Button> */}
             <Button
               type="submit"
               disabled={
