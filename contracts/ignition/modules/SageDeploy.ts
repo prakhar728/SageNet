@@ -1,35 +1,23 @@
-// scripts/deploy.js
-const { ethers } = require("hardhat");
+// deploy/sagenet.ignition.ts
+import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
-async function main() {
-  console.log("Deploying SageNet contracts...");
+const SageNetDeployment = buildModule("SageNetDeployment", (m) => {
+  const sageNetCore = m.contract("SageNetCore",);
 
-  // Deploy SageNetCore first
-  const SageNetCore = await ethers.getContractFactory("SageNetCore");
-  const sageNetCore = await SageNetCore.deploy();
-  await sageNetCore.waitForDeployment();
+  // console.log(sageNetCore);
   
-  const sageNetCoreAddress = await sageNetCore.getAddress();
-  console.log(`SageNetCore deployed to: ${sageNetCoreAddress}`);
+  // const sageNetReview = m.contract("SageNetReview", [sageNetCore]);
 
-  // Deploy SageNetReview with the SageNetCore address
-  const SageNetReview = await ethers.getContractFactory("SageNetReview");
-  const sageNetReview = await SageNetReview.deploy(sageNetCoreAddress);
-  await sageNetReview.waitForDeployment();
-  
-  const sageNetReviewAddress = await sageNetReview.getAddress();
-  console.log(`SageNetReview deployed to: ${sageNetReviewAddress}`);
+  // m.call(
+  //   sageNetCore,
+  //   "setStatusUpdater",
+  //   [sageNetReview, true],
+  // );
 
-  // Authorize the Review contract to update paper status in the Core contract
-  await sageNetCore.setStatusUpdater(sageNetReviewAddress, true);
-  console.log(`Authorized SageNetReview to update paper statuses`);
+  return {
+    sageNetCore,
+    // sageNetReview,
+  };
+});
 
-  console.log("Deployment complete!");
-}
-
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+export default SageNetDeployment;
