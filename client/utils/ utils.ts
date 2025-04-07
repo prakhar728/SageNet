@@ -7,7 +7,7 @@ export const inferStatus = (status: number) => {
     case 2:
       return "In Review";
     case 3:
-      return "Accepted";
+      return "Published";
     default:
       return "";
   }

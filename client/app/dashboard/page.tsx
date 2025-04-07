@@ -72,8 +72,6 @@ export default function DashboardPage() {
 
   const { address } = useAccount();
 
-  console.log(address);
-
   const { data: paperIds, error } = useReadContract({
     abi: SageNetCore.abi,
     address: ContractAddresses.sageNetCore as `0x${string}`,
@@ -215,7 +213,7 @@ export default function DashboardPage() {
                         >
                           {inferStatus(paper.status)}
                         </Badge>
-                        <Link href={paper.link}>
+                        <Link href={`/papers/${paper.id}`}>
                           <Button variant="outline" size="sm">
                             View Details
                           </Button>
