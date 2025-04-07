@@ -11,9 +11,10 @@ import SageNetCore from "@/contracts/SageNetCore.json";
 import ContractAddresses from "@/contracts/DeploymentInfo.json";
 import { useEffect, useState } from "react";
 import { myPaper } from "@/utils/PaperFormTypes";
+import { getStatusColor, inferStatus, timestampToLocalDateTime } from "@/utils/ utils";
 
 export default function DashboardPage() {
-  const [myPapers, setMyPapers] = useState<myPaper[]>([]);
+  const [myPapers, setMyPapers] = useState<myPaper[]| undefined>([]);
 
   const contributions = [
     {
@@ -66,47 +67,6 @@ export default function DashboardPage() {
       progress: 20,
     },
   ];
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Published":
-      case "Accepted":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
-      case "In Review":
-      case "Under Review":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
-      case "Draft":
-      case "Submitted":
-        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
-      default:
-        return "";
-    }
-  };
-
-  const inferStatus = (status: number) => {
-    switch (status) {
-      case 0:
-        return "Draft";
-      case 1:
-        return "Submitted";
-      case 2:
-        return "In Review";
-      case 3:
-        return "Accepted";
-      default:
-        return "";
-    }
-  };
-
-  function timestampToLocalDateTime(timestamp: number): string {
-    // If the timestamp is in seconds, convert to milliseconds
-    if (timestamp.toString().length === 10) {
-      timestamp *= 1000;
-    }
-  
-    const date = new Date(timestamp);
-    return date.toLocaleString(); // Converts to local date and time
-  }  
 
   // contract interactions
 
@@ -177,10 +137,9 @@ export default function DashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{myPapers.length}</div>
+              <div className="text-2xl font-bold">{myPapers?.length}</div>
               <p className="text-xs text-muted-foreground">
-                {myPapers.filter((p) => p.status === 3).length}{" "}
-                published
+                {myPapers?.filter((p) => p.status === 3).length} published
               </p>
             </CardContent>
           </Card>
@@ -244,13 +203,16 @@ export default function DashboardPage() {
                               {paper.title}
                             </h3>
                             <p className="text-sm text-muted-foreground">
-                              Uploaded on {timestampToLocalDateTime(parseInt(paper.date))}
+                              Uploaded on{" "}
+                              {timestampToLocalDateTime(parseInt(paper.date))}
                             </p>
                           </div>
                         </div>
                       </div>
                       <div className="flex flex-row md:flex-col items-center md:items-end gap-2">
-                        <Badge className={getStatusColor(inferStatus(paper.status))}>
+                        <Badge
+                          className={getStatusColor(inferStatus(paper.status))}
+                        >
                           {inferStatus(paper.status)}
                         </Badge>
                         <Link href={paper.link}>
