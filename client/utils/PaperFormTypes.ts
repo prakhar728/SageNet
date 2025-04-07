@@ -22,3 +22,13 @@ export interface BountyInfo {
     // Form status
     uploadStatus: "idle" | "uploading" | "success" | "error";
   }
+
+
+  export type myPaper = {
+    id: any;
+    abstract: any;
+    title: any;
+    status: any;
+    date: any;
+    link: string;
+}
