@@ -19,62 +19,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search } from "lucide-react";
-import { useAccount, useReadContract, useReadContracts } from "wagmi";
+import { useAccount, useReadContracts } from "wagmi";
 import SageNetCore from "@/contracts/SageNetCore.json";
 import ContractAddresses from "@/contracts/DeploymentInfo.json";
 import { inferStatus } from "@/utils/ utils";
-
-// Mock data for research papers
-const papers = [
-  {
-    id: 1,
-    title: "Decentralized Consensus Mechanisms in Blockchain Networks",
-    author: "Dr. Alex Johnson",
-    status: "Published",
-    hasBounty: true,
-    date: "2023-11-15",
-  },
-  {
-    id: 2,
-    title: "Smart Contract Security Analysis: A Comprehensive Review",
-    author: "Prof. Sarah Williams",
-    status: "Published",
-    hasBounty: false,
-    date: "2023-10-28",
-  },
-  {
-    id: 3,
-    title: "Zero-Knowledge Proofs in Privacy-Preserving Applications",
-    author: "Dr. Michael Chen",
-    status: "Draft",
-    hasBounty: true,
-    date: "2023-11-02",
-  },
-  {
-    id: 4,
-    title: "Scalability Solutions for Next-Generation Blockchain Platforms",
-    author: "Prof. Emily Rodriguez",
-    status: "Published",
-    hasBounty: true,
-    date: "2023-09-19",
-  },
-  {
-    id: 5,
-    title: "Tokenomics: Economic Models for Sustainable Blockchain Ecosystems",
-    author: "Dr. James Wilson",
-    status: "Draft",
-    hasBounty: false,
-    date: "2023-11-10",
-  },
-  {
-    id: 6,
-    title: "Cross-Chain Interoperability: Challenges and Solutions",
-    author: "Prof. Lisa Brown",
-    status: "Published",
-    hasBounty: true,
-    date: "2023-10-05",
-  },
-];
 
 export default function ExplorePage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -141,8 +89,6 @@ export default function ExplorePage() {
       });
 
       temp = temp.filter((t) => t);
-
-      console.log(temp);
 
       setpapers(temp);
     };
