@@ -354,31 +354,31 @@ export default function PaperDetailsPage({
       console.log("Accepting review:", reviewId);
 
       // Update the review status in our state
-      setReviews(
-        reviews.map((review) =>
-          review.reviewId === reviewId
-            ? { ...review, status: 1 } // Set to Accepted
-            : review
-        )
-      );
+      // setReviews(
+      //   reviews.map((review) =>
+      //     review.reviewId === reviewId
+      //       ? { ...review, status: 1 } // Set to Accepted
+      //       : review
+      //   )
+      // );
 
       // Update bounty stats
-      if (bounty) {
-        setBounty({
-          ...bounty,
-          remaining: bounty.remaining - 1,
-          acceptedReviews: bounty.acceptedReviews + 1,
-          isActive: bounty.remaining > 1,
-        });
-      }
+      // if (bounty) {
+      //   setBounty({
+      //     ...bounty,
+      //     remaining: bounty.remaining - 1,
+      //     acceptedReviews: bounty.acceptedReviews + 1,
+      //     isActive: bounty.remaining > 1,
+      //   });
+      // }
 
       // Actual contract call would be:
-      // await writeContractAsync({
-      //   abi: SageNetReview.abi,
-      //   address: ContractAddresses.sageNetReview as `0x${string}`,
-      //   functionName: "acceptReview",
-      //   args: [BigInt(reviewId)]
-      // })
+      await writeContractAsync({
+        abi: SageNetReview.abi,
+        address: ContractAddresses.sageNetReview as `0x${string}`,
+        functionName: "acceptReview",
+        args: [BigInt(reviewId)]
+      })
     } catch (error) {
       console.error("Error accepting review:", error);
     }
@@ -399,12 +399,12 @@ export default function PaperDetailsPage({
       );
 
       // Actual contract call would be:
-      // await writeContractAsync({
-      //   abi: SageNetReview.abi,
-      //   address: ContractAddresses.sageNetReview as `0x${string}`,
-      //   functionName: "rejectReview",
-      //   args: [BigInt(reviewId)]
-      // })
+      await writeContractAsync({
+        abi: SageNetReview.abi,
+        address: ContractAddresses.sageNetReview as `0x${string}`,
+        functionName: "rejectReview",
+        args: [BigInt(reviewId)]
+      })
     } catch (error) {
       console.error("Error rejecting review:", error);
     }
