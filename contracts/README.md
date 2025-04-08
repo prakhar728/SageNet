@@ -48,7 +48,7 @@ $ anvil
 ### Deploy
 
 ```shell
-$ forge script script/SageDeploy.s.sol --private-key $PRIVATE_KEY --rpc-url $EDUCHAIN_TESTNET_URL
+$ forge script script/SageDeploy.s.sol --private-key $PRIVATE_KEY --rpc-url $EDUCHAIN_TESTNET_URL --broadcast --skip-simulation
 ```
 
 ### Cast
@@ -63,9 +63,4 @@ $ cast <subcommand>
 $ forge --help
 $ anvil --help
 $ cast --help
-```
-
-```bash
-  SageNetCore deployed at: 0x9cb6eCA667F4a7c9cFe31Bb2bF82d64b1d6D5201
-  SageNetReview deployed at: 0xb707EF14763C10a60D42f168023fe26041483A34
 ```

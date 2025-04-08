@@ -79,6 +79,9 @@ export default function DashboardPage() {
     args: [address],
   });
 
+  console.log(error);
+  
+
   const {
     data: allPapers,
     isLoading,
