@@ -272,7 +272,7 @@ contract SageNetCore is ERC721, Ownable {
      * @param tokenId The ID of the paper's SBT
      * @param user The address against which want to check
      */
-    function isPaperAuthor(uint256 tokenId, address user) external view returns (bool) {
+    function isPaperAuthor(uint256 tokenId, address user) public view returns (bool) {
         require(exists(tokenId), "Paper does not exist");
         return papers[tokenId].author == user;
     }

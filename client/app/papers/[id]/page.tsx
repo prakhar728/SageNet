@@ -16,7 +16,12 @@ import {
   Share2,
   Clock,
 } from "lucide-react";
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import {
+  useAccount,
+  useReadContract,
+  useReadContracts,
+  useWriteContract,
+} from "wagmi";
 import { parseEther, formatEther } from "viem";
 import SageNetCore from "@/contracts/SageNetCore.json";
 import SageNetReview from "@/contracts/SageNetReview.json";
@@ -26,6 +31,7 @@ import {
   timestampToLocalDateTime,
   getStatusColor,
 } from "@/utils/ utils";
+import { uploadText } from "@/utils/ipfs";
 
 export default function PaperDetailsPage({
   params,
@@ -70,12 +76,6 @@ export default function PaperDetailsPage({
     args: [id, address],
   });
 
-  console.log(authorCheck);
-  
-
-  // const authorCheck = paperData?.author == address;
-
-
   const { data: bountyData } = useReadContract({
     abi: SageNetReview.abi,
     address: ContractAddresses.sageNetReview as `0x${string}`,
@@ -97,9 +97,16 @@ export default function PaperDetailsPage({
     args: [BigInt(id)],
   });
 
-  useEffect(() => {
-    console.log(paperData);
+  const { data: allReviews, error: multipleReadError } = useReadContracts({
+    contracts: (reviewIds ? (reviewIds as BigInt[]) : []).map((id) => ({
+      abi: SageNetReview.abi,
+      address: ContractAddresses.sageNetReview as `0x${string}`,
+      functionName: "getReview",
+      args: [id],
+    })),
+  });
 
+  useEffect(() => {
     if (paperData) {
       const {
         ipfsHash,
@@ -201,49 +208,48 @@ export default function PaperDetailsPage({
 
   // Fetch review data
   useEffect(() => {
-    const fetchReviews = async () => {
-      if (!reviewIds || reviewIds.length === 0) return;
+    const santizeReviews = async () => {
+      if (!allReviews || allReviews.length === 0) return;
+      console.log("Santizing");
+      
+      const reviewPromises = allReviews.map(async (r) => {
+        try {
+          const content = await (await fetch(`https://gateway.lighthouse.storage/ipfs/${r.result.ipfsHash}`)).text();
+          
+          return {
+            reviewId: r.result.reviewId.toString(),
+            reviewer: r.result.reviewer || "0x0000",
+            timestamp: r.result.timestamp,
+            status: r.result.status,
+            content: content,
+            isReviewer: r.result.reviewer == address,
+          };
+        } catch (error) {
+          console.error(`Error fetching review ${r.result.reviewId}:`, error);
+          return {
+            reviewId: r.result.reviewId.toString(),
+            reviewer: r.result.reviewer || "0x0000",
+            timestamp: r.result.timestamp,
+            status: r.result.status,
+            content: "Error loading review content",
+            isReviewer: r.result.reviewer == address,
+          };
+        }
+      });
+      
+      // Wait for all promises to resolve
+      const reviewsData = await Promise.all(reviewPromises);
+      
+      console.log(reviewsData);
 
-      try {
-        const reviewsData = await Promise.all(
-          (reviewIds as BigInt[]).map(async (id) => {
-            const reviewData = await fetch(`/api/reviews/${id}`) // Mock API endpoint
-              .then((res) => res.json())
-              .catch(() => {
-                // Fallback mock data if API doesn't exist
-                return {
-                  reviewId: id.toString(),
-                  reviewer: `0x${Math.random()
-                    .toString(16)
-                    .substring(2, 10)}...`,
-                  timestamp:
-                    Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 30,
-                  status: Math.floor(Math.random() * 3), // 0: Pending, 1: Accepted, 2: Rejected
-                  content: `This paper presents interesting findings on ${
-                    paper?.title
-                  }. The methodology is sound, but could benefit from more detailed explanations. ${
-                    Math.random() > 0.5
-                      ? "I particularly appreciated the discussion on privacy considerations."
-                      : "The conclusions are well supported by the data presented."
-                  }`,
-                  isReviewer: true,
-                };
-              });
-
-            return reviewData;
-          })
-        );
-
-        setReviews(reviewsData);
-      } catch (error) {
-        console.error("Error fetching reviews:", error);
-      }
+      setReviews(reviewsData)
+      
     };
 
-    if (reviewIds && paper) {
-      fetchReviews();
+    if (allReviews && allReviews.length) {
+      santizeReviews();
     }
-  }, [reviewIds, paper]);
+  }, [allReviews]);
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -263,16 +269,18 @@ export default function PaperDetailsPage({
         isReviewer: false,
       };
 
-      setReviews([...reviews, newReview]);
-      setComment("");
+      const cid = await uploadText(comment);
 
       // In a real implementation, you would call the submitReview function
-      // await writeContractAsync({
-      //   abi: SageNetReview.abi,
-      //   address: ContractAddresses.sageNetReview as `0x${string}`,
-      //   functionName: "submitReview",
-      //   args: [BigInt(id), "ipfsHash"],
-      // })
+      await writeContractAsync({
+        abi: SageNetReview.abi,
+        address: ContractAddresses.sageNetReview as `0x${string}`,
+        functionName: "submitReview",
+        args: [BigInt(id), cid],
+      });
+
+      setReviews([...reviews, newReview]);
+      setComment("");
     } catch (error) {
       console.error("Error submitting review:", error);
     }
@@ -320,16 +328,20 @@ export default function PaperDetailsPage({
       setIsLoading(false);
 
       console.log(parseEther(bountyAmount));
-      console.log(BigInt(id), BigInt(deadlineInSeconds), BigInt(bountyReviewers));
-      
+      console.log(
+        BigInt(id),
+        BigInt(deadlineInSeconds),
+        BigInt(bountyReviewers)
+      );
+
       // Actual contract call would be:
       await writeContractAsync({
         abi: SageNetReview.abi,
         address: ContractAddresses.sageNetReview as `0x${string}`,
         functionName: "createBounty",
         args: [BigInt(id), BigInt(deadlineInSeconds), BigInt(bountyReviewers)],
-        value: parseEther(bountyAmount)
-      })
+        value: parseEther(bountyAmount),
+      });
     } catch (error) {
       console.error("Error creating bounty:", error);
       setIsLoading(false);
@@ -636,6 +648,7 @@ export default function PaperDetailsPage({
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="preview">PDF Preview</TabsTrigger>
+                <TabsTrigger value="discussion">Contribute</TabsTrigger>
               </TabsList>
 
               <TabsContent value="preview" className="mt-4">
@@ -724,7 +737,7 @@ export default function PaperDetailsPage({
                             )}
                           </div>
                           <p className="text-xs text-muted-foreground">
-                            {new Date(review.timestamp).toLocaleDateString()}
+                            {timestampToLocalDateTime(parseInt(review.timestamp))}
                           </p>
                         </div>
                       </div>
