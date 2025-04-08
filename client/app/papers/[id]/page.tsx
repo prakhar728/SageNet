@@ -67,8 +67,14 @@ export default function PaperDetailsPage({
     abi: SageNetCore.abi,
     address: ContractAddresses.sageNetCore as `0x${string}`,
     functionName: "isAuthor",
-    args: [BigInt(id)],
+    args: [id],
   });
+
+  console.log(authorCheck);
+  
+
+  // const authorCheck = paperData?.author == address;
+
 
   const { data: bountyData } = useReadContract({
     abi: SageNetReview.abi,
@@ -296,31 +302,34 @@ export default function PaperDetailsPage({
       });
 
       // Mock successful bounty creation
-      setBounty({
-        exists: true,
-        isActive: true,
-        remaining: bountyReviewers,
-        totalReviewers: bountyReviewers,
-        acceptedReviews: 0,
-        amountPerReviewer: (parseFloat(bountyAmount) / bountyReviewers).toFixed(
-          4
-        ),
-        totalAmount: bountyAmount,
-        deadline: deadlineInSeconds,
-        timeRemaining: bountyDays * 24 * 60 * 60,
-        creator: address,
-      });
+      // setBounty({
+      //   exists: true,
+      //   isActive: true,
+      //   remaining: bountyReviewers,
+      //   totalReviewers: bountyReviewers,
+      //   acceptedReviews: 0,
+      //   amountPerReviewer: (parseFloat(bountyAmount) / bountyReviewers).toFixed(
+      //     4
+      //   ),
+      //   totalAmount: bountyAmount,
+      //   deadline: deadlineInSeconds,
+      //   timeRemaining: bountyDays * 24 * 60 * 60,
+      //   creator: address,
+      // });
 
       setIsLoading(false);
 
+      console.log(parseEther(bountyAmount));
+      console.log(BigInt(id), BigInt(deadlineInSeconds), BigInt(bountyReviewers));
+      
       // Actual contract call would be:
-      // await writeContractAsync({
-      //   abi: SageNetReview.abi,
-      //   address: ContractAddresses.sageNetReview as `0x${string}`,
-      //   functionName: "createBounty",
-      //   args: [BigInt(id), BigInt(deadlineInSeconds), BigInt(bountyReviewers)],
-      //   value: parseEther(bountyAmount)
-      // })
+      await writeContractAsync({
+        abi: SageNetReview.abi,
+        address: ContractAddresses.sageNetReview as `0x${string}`,
+        functionName: "createBounty",
+        args: [BigInt(id), BigInt(deadlineInSeconds), BigInt(bountyReviewers)],
+        value: parseEther(bountyAmount)
+      })
     } catch (error) {
       console.error("Error creating bounty:", error);
       setIsLoading(false);
@@ -508,7 +517,6 @@ export default function PaperDetailsPage({
                         onChange={(e) => setBountyAmount(e.target.value)}
                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         placeholder="0.5"
-                        min="0.01"
                         required
                       />
                     </div>
