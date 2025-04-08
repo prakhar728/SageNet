@@ -66,8 +66,8 @@ export default function PaperDetailsPage({
   const { data: authorCheck } = useReadContract({
     abi: SageNetCore.abi,
     address: ContractAddresses.sageNetCore as `0x${string}`,
-    functionName: "isAuthor",
-    args: [id],
+    functionName: "isPaperAuthor",
+    args: [id, address],
   });
 
   console.log(authorCheck);
