@@ -247,6 +247,14 @@ contract SageNetCore is ERC721, Ownable {
     }
 
     /**
+     * @dev Get the latest paperId
+     * @return id for the specified version
+     */
+    function getLatestPaperId() public view returns (uint256 id) {
+        return _currentTokenId;
+    }
+
+    /**
      * @dev Verifies if a token exists and returns its details
      * @param ipfsHash The IPFS hash to check
      * @return exists Boolean indicating if the paper exists
