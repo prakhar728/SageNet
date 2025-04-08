@@ -18,11 +18,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search } from "lucide-react";
+import { ExternalLink, Search } from "lucide-react";
 import { useAccount, useReadContracts } from "wagmi";
 import SageNetCore from "@/contracts/SageNetCore.json";
 import ContractAddresses from "@/contracts/DeploymentInfo.json";
 import { inferStatus } from "@/utils/ utils";
+import Link from "next/link";
 
 export default function ExplorePage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -44,7 +45,10 @@ export default function ExplorePage() {
   // Sort papers based on selected option
   const sortedPapers = [...filteredPapers].sort((a, b) => {
     if (sortBy === "newest") {
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
+      return (
+        new Date(parseInt(b.date)).getTime() -
+        new Date(parseInt(a.date)).getTime()
+      );
     } else {
       // For "trending", we could implement a more complex algorithm
       // For now, just prioritize papers with bounties
@@ -188,6 +192,13 @@ export default function ExplorePage() {
                       Bounty Available
                     </Badge>
                   )}
+
+                  <Link href={`/papers/${paper.id}`} className="w-full">
+                    <Button variant="outline" size="sm" className="w-full">
+                      View Details
+                      <ExternalLink className="h-4 w-4 ml-2" />
+                    </Button>
+                  </Link>
                 </CardFooter>
               </Card>
             ))}
@@ -237,6 +248,12 @@ export default function ExplorePage() {
                           Bounty Available
                         </Badge>
                       )}
+
+                      <Link href={`/papers/${paper.id}`}>
+                        <Button variant="outline" size="sm">
+                          View Details
+                        </Button>
+                      </Link>
                     </div>
                   </div>
                 </CardContent>
