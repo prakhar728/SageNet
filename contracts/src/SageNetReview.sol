@@ -19,6 +19,7 @@ interface ISageNetCore {
     function updatePaperStatus(uint256 tokenId, uint8 newStatus) external;
     function isPublisher(uint256 tokenId) external view returns (bool);
     function isAuthor(uint256 tokenId) external view returns (bool);
+    function isPaperAuthor(uint256 tokenId, address user) external view returns (bool);
 }
 
 /**
@@ -89,8 +90,8 @@ contract SageNetReview is Ownable {
         _;
     }
 
-    modifier onlyPaperAuthor(uint256 paperId) {
-        require(sageNetCore.isAuthor(paperId), "Only paper author can perform this action");
+    modifier onlyPaperAuthor(uint256 paperId, address user) {
+        require(sageNetCore.isPaperAuthor(paperId, user), "Only paper author can perform this action");
         _;
     }
 
@@ -108,7 +109,7 @@ contract SageNetReview is Ownable {
         public 
         payable 
         paperExists(paperId)
-        onlyPaperAuthor(paperId)
+        onlyPaperAuthor(paperId, msg.sender)
     {
         require(msg.value > 0, "Bounty amount must be greater than 0");
         require(deadline > block.timestamp, "Deadline must be in the future");
@@ -145,7 +146,7 @@ contract SageNetReview is Ownable {
         require(block.timestamp <= bounties[paperId].deadline, "Review deadline has passed");
         
         // Make sure the reviewer is not the author
-        require(!sageNetCore.isAuthor(paperId), "Author cannot review their own paper");
+        require(!sageNetCore.isPaperAuthor(paperId, msg.sender), "Author cannot review their own paper");
         
         // Increment the review ID counter
         _currentReviewId += 1;
@@ -182,7 +183,7 @@ contract SageNetReview is Ownable {
         require(review.status == ReviewStatus.Pending, "Review is not pending");
         
         // Only the paper author can accept reviews
-        require(sageNetCore.isAuthor(review.paperId), "Only the paper author can accept reviews");
+        require(sageNetCore.isPaperAuthor(review.paperId, msg.sender), "Only the paper author can accept reviews");
         
         Bounty storage bounty = bounties[review.paperId];
         require(bounty.amount > 0, "No bounty available for this paper");
@@ -225,7 +226,7 @@ contract SageNetReview is Ownable {
         require(review.status == ReviewStatus.Pending, "Review is not pending");
         
         // Only the paper author can reject reviews
-        require(sageNetCore.isAuthor(review.paperId), "Only the paper author can reject reviews");
+        require(sageNetCore.isPaperAuthor(review.paperId, msg.sender), "Only the paper author can reject reviews");
         
         review.status = ReviewStatus.Rejected;
         
