@@ -12,10 +12,11 @@ app = FastAPI(
     description="Search research papers using BM25",
     version="1.0"
 )
+allowed_origins = ["https://sage-net.vercel.app/", "https://sagenet.onrender.com"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://sagenet.onrender.com"], 
+    allow_origins=allowed_origins, 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
