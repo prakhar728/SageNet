@@ -38,7 +38,7 @@ Parth (@Par-t) completed our mandatory 6-month industry training through researc
 
 #### 1. Lack of Compensation and Recognition for Peer Reviewers
 
-The article **["Who Pays the Price for Peer Review?"](https://www.nature.com/articles/d41586-023-00118-y)** highlights a growing concern in academia: peer reviewers are rarely compensated or formally recognized for their contributions.
+The article **["Who Pays the Price for Peer Review?"](https://www.morressier.com/post/who-pays-the-price-for-peer-review)** highlights a growing concern in academia: peer reviewers are rarely compensated or formally recognized for their contributions.
 
 - This lack of incentive leads to difficulty in sourcing willing reviewers.
 - It causes **delays** and compromises the **quality** of feedback.
@@ -79,6 +79,57 @@ In the article **["Peer Review Ghost-Writing, or Do Professors Understand Plagia
 5. **Sagey – Personal AI Research Assistant**
    - Recommends papers and references as you write.
    - Improves literature review and speeds discovery.
+
+---
+
+
+## 💰 Fundraising Status
+
+We’re currently in the **fundraising phase** to sustain and grow SageNet beyond the hackathon.
+
+Since this project is being built entirely by students — with Parth being a university student and Prakhar still early in his career — any funding would help us continue working full-time on the platform. We are currently seeking **grants, accelerators, and angel support** to push SageNet forward and build it into a sustainable, impactful research ecosystem.
+
+---
+
+## 🗺️ Project Roadmap
+
+### 🔧 Technical Roadmap
+
+- **Next 2 Months**
+  - Launch the **testnet version** with rewritten and **security-audited smart contracts** for:
+    - Paper publishing
+    - Bounty creation
+    - Peer review automation
+  - Remodel **Sagey** to dynamically analyze all uploaded papers, enhancing **similarity detection** and **research relevance**.
+
+- **Following 1 Month**
+  - Gather feedback from early testnet users.
+  - Iterate quickly and fix bugs to improve the platform's performance and usability.
+
+- **Next 3 Months**
+  - Build a **fully integrated research paper writing interface**, complete with:
+    - Live reference recommendations
+    - In-editor AI assistance
+    - Versioning and citation tools
+
+### 📈 Business & Community Roadmap
+
+- Connect with our own colleges and expand outreach to **IITs and research clubs** to onboard early users.
+- Launch **premium AI-assisted writing tools** as optional upgrades.
+- Begin discussions with **academic journals** to:
+  - Recognize their reputation levels on-chain.
+  - Enable researchers to directly submit applications for publishing.
+
+---
+
+## 🧾 What We’ll Do With Funds
+
+- 💼 **Sustain Ourselves**: As student builders, the funds will act as a **side income** to allow us to work more consistently and seriously on the project.
+- 🧪 **Development Costs**: Pay for essential infrastructure such as cloud compute, smart contract audits, and continuous deployment.
+- 🚀 **Growth & Partnerships**: Fuel outreach campaigns, partnership initiatives with universities and journals, and expand community support.
+- 🧠 **Product Enhancements**: Invest in building more advanced AI capabilities and onboarding tools for new researchers.
+
+We are open to collaborations, grant opportunities, and accelerator programs that align with our mission to build a fair, decentralized future for research publishing.
 
 ---
 
