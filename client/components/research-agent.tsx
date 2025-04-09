@@ -81,13 +81,13 @@ export function ResearchAgent({ abstractText }: ResearchAgentProps) {
               size="icon"
               className="absolute right-2 top-8 text-muted-foreground hover:text-primary"
               onClick={handleSearch}
-              aria-label="Find similar research papers"
+              aria-label="Use Sagey to find similar papers"
             >
               <Search className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Find similar research papers</p>
+            <p>Use Sagey to find similar papers</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -95,10 +95,10 @@ export function ResearchAgent({ abstractText }: ResearchAgentProps) {
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>Similar Research Papers</DialogTitle>
+            <DialogTitle>Sagey Results</DialogTitle>
             <DialogDescription>
               {isLoading
-                ? "Searching for similar research papers..."
+                ? "Sagey is searching for similar research papers..."
                 : "These papers might be relevant to your research."}
             </DialogDescription>
           </DialogHeader>
