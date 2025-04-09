@@ -19,7 +19,7 @@ A safe, decentralized platform for research enthusiasts to publish papers with p
 
 ## Understanding the Problem
 
-### Our Narrative
+### Our Narrative ( MUST READ )
 
 Parth (@Par-t) completed our mandatory 6-month industry training through research instead of the more conventional internship route — a rare path due to the lack of **research support in India**. This decision came with several challenges during his work on **Application of Machine Learning in Fiber Optics based intrusion detection and classification systems** and **Aspect based sentiment**:
 
