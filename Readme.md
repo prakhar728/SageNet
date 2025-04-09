@@ -6,6 +6,21 @@ A safe, decentralized platform for Research enthusiasts to publish their papers 
 
 ### OUR NARRATIVE
 
+ Parth(@Par-t) completed our mandatory 6 month industry training by opting for a **research** for our 6 months instead of of the more conventional internship route, a choice that not many take due to the lack of **Research Support in India**. That decision marked the beginning of a series of challenges.
+
+During his time in the 6 months while working on **TOPIC** we faced several challenges.
+
+1. Many professors in India prioritize **publication quantity** over **research quality** and adherence to global standards.
+2. The journal submission process is painfully **slow** and **opaque** — often requiring repeated follow-ups just to get basic updates.
+3. Peer reviews are frequently delegated to TAs or assistants, resulting in **low-quality feedback**, as there's no direct incentive for reviewers to invest time or effort.
+
+### PROBLEMS FACED BY OTHERS
+
+1. Lack of Proof of Authorship: 
+Researchers often struggle to establish clear ownership of their work, leading to potential disputes and plagiarism. 
+2. Lengthy and Opaque Journal Submission Processes: Traditional journal submissions can be time-consuming and lack transparency, causing frustration among researchers. 
+3. Difficulty in Identifying Related Research: Researchers may find it challenging to locate existing studies related to their work, leading to redundant efforts.
+4. Predatory Publishing Practices: The rise of predatory journals exploits researchers by charging fees without providing proper peer review or editorial services, leading to the dissemination of unvetted and potentially flawed studies
 
 
 ## FEATURES( AN OVERVIEW):
@@ -30,6 +45,9 @@ A safe, decentralized platform for Research enthusiasts to publish their papers 
     * A Web3-powered search engine for research papers.
 
     * Uses DAO governance to rank research fairly (not just based on SEO or paywalls).
+5. Sagey – Your Personal AI Research Assistant
+    * Suggests related papers and references while you write the abstract.
+    * Enhances discovery, speeds up literature review, and reduces redundant work.
 
 ## TECH STACK
 
@@ -72,3 +90,13 @@ Add the required variables to `.env`
 ```bash
 pnpm run dev
 ```
+
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+
+## 👥 Authors
+
+- [@prakhar728](https://github.com/prakhar728) - UG at IIIT Surat(2024 pass out)
+- [@Par-t](https://github.com/Par-t) - UG at IIIT Surat(2024 pass out), Master at SBU(AI)
