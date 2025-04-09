@@ -1,95 +1,104 @@
 # SageNet: A Web3-Powered Research Platform
 
-A safe, decentralized platform for Research enthusiasts to publish their papers with proof of ownership, apply for publication in various Journals, set bounties for peer reviews, and contribute to others' research. Powered by EDU-CHAIN and assisted by Sagey — your AI agent for finding related research fast.
+A safe, decentralized platform for research enthusiasts to publish papers with proof of ownership, apply for journal publications, offer peer review bounties, and contribute to others’ research. Powered by EDU-CHAIN and assisted by Sagey — your AI agent for fast, related research discovery.
 
-## UNDERSTANDING THE PROBLEM:
+---
 
-### OUR NARRATIVE
+## 📘 Table of Contents
 
- Parth(@Par-t) completed our mandatory 6 month industry training by opting for a **research** for our 6 months instead of of the more conventional internship route, a choice that not many take due to the lack of **Research Support in India**. That decision marked the beginning of a series of challenges.
+- [Understanding the Problem](#understanding-the-problem)
+  - [Our Narrative](#our-narrative)
+  - [Problems Faced by Others](#problems-faced-by-others)
+- [🔍 Features](#-features)
+- [🧠 Tech Stack](#-tech-stack)
+- [🚀 Running Locally](#-running-locally)
+- [📄 License](#-license)
+- [👥 Authors](#-authors)
 
-During his time in the 6 months while working on **TOPIC** we faced several challenges.
+---
 
-1. Many professors in India prioritize **publication quantity** over **research quality** and adherence to global standards.
-2. The journal submission process is painfully **slow** and **opaque** — often requiring repeated follow-ups just to get basic updates.
-3. Peer reviews are frequently delegated to TAs or assistants, resulting in **low-quality feedback**, as there's no direct incentive for reviewers to invest time or effort.
+## Understanding the Problem
 
-### PROBLEMS FACED BY OTHERS
+### Our Narrative
 
-1. Lack of Proof of Authorship: 
-Researchers often struggle to establish clear ownership of their work, leading to potential disputes and plagiarism. 
-2. Lengthy and Opaque Journal Submission Processes: Traditional journal submissions can be time-consuming and lack transparency, causing frustration among researchers. 
-3. Difficulty in Identifying Related Research: Researchers may find it challenging to locate existing studies related to their work, leading to redundant efforts.
-4. Predatory Publishing Practices: The rise of predatory journals exploits researchers by charging fees without providing proper peer review or editorial services, leading to the dissemination of unvetted and potentially flawed studies
+Parth (@Par-t) completed our mandatory 6-month industry training through research instead of the more conventional internship route — a rare path due to the lack of **research support in India**. This decision came with several challenges during his work on **TOPIC**:
 
+1. Many professors prioritize **quantity of publication** over **quality** and global standards.
+2. The journal submission process is **slow** and **opaque**, often requiring repeated follow-ups.
+3. Peer reviews are often done by TAs, resulting in **low-quality feedback** due to a lack of incentives.
 
-## FEATURES( AN OVERVIEW):
+### Problems Faced by Others
 
-1. Authorship Tracking with SBTs(ERC721 tokens)
-    * Researchers receive a Soulbound Token (SBT) when they upload their first draft.
-    * Ensures proof of authorship and prevents plagiarism.
+1. **Lack of Proof of Authorship:** Difficulty establishing ownership, leading to plagiarism risks.  
+2. **Opaque Submission Process:** Traditional journal pipelines are time-consuming and frustrating.  
+3. **Difficulty Finding Related Research:** Researchers struggle to avoid redundancy.  
+4. **Predatory Publishing:** Some journals exploit researchers without offering real value.
 
-2. Bounty System for Peer Reviews
-    * Researchers can offer crypto bounties to incentivize peer reviews.
+---
 
-    * Smart contracts automate payments when reviews are verified.
+## 🔍 Features
 
-3. AI-Powered Research Comparison
+1. **Authorship Tracking with SBTs (ERC721 Tokens)**
+   - Receive a Soulbound Token (SBT) on first draft upload.
+   - Verifies authorship and combats plagiarism.
 
-    * Uses AI to detect plagiarism and find similar research.
+2. **Bounty System for Peer Reviews**
+   - Offer crypto bounties for quality peer reviews.
+   - Smart contracts automate verified review payments.
 
-    * Helps in avoiding duplicates and finding collaborations.
+3. **AI-Powered Research Comparison**
+   - Detects plagiarism and finds similar research.
+   - Enables better collaboration and prevents duplication.
 
-4. Decentralized Research Search Engine
+4. **Decentralized Research Search Engine**
+   - Web3-powered, DAO-governed research discovery.
+   - Ranks papers fairly — not by SEO or paywalls.
 
-    * A Web3-powered search engine for research papers.
+5. **Sagey – Personal AI Research Assistant**
+   - Recommends papers and references as you write.
+   - Improves literature review and speeds discovery.
 
-    * Uses DAO governance to rank research fairly (not just based on SEO or paywalls).
-5. Sagey – Your Personal AI Research Assistant
-    * Suggests related papers and references while you write the abstract.
-    * Enhances discovery, speeds up literature review, and reduces redundant work.
+---
 
-## TECH STACK
+## 🧠 Tech Stack
 
 ### Frontend
-
-1. Next.js(Typescript)
-2. Wagmi with Reown Wallet. 
+- Next.js (TypeScript)
+- Wagmi with Reown Wallet
 
 ### Agent
-
-Python with BM25 Algorithm for Similarity search
+- Python with BM25 Algorithm
 
 ### Smart Contract
+- Foundry
+- Solidity
+- OpenZeppelin ERC721
 
-1. Foundry
-2. Solidity
-3. Open Zeppelin ERC721
+---
 
+## 🚀 Running Locally
 
-## RUNNING LOCALLY
-
-1. Clone the repository:
-```bash
-git clone https://github.com/prakhar728/SageNet.git && cd SageNet
-```
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/prakhar728/SageNet.git && cd SageNet
+   ```
 
 2. Install dependencies:
-```bash
-cd client
-pnpm install
-```
+    ```bash
+    cd client
+    pnpm install
+    ```
 
 3. Set up environment variables:
-```bash
-cp .env.example .env
-```
-Add the required variables to `.env`
+    ```bash
+    cp .env.example .env
+    ```
+    Add the required variables to `.env`
 
 4. Start the development server:
-```bash
-pnpm run dev
-```
+    ```bash
+    pnpm run dev
+    ```
 
 
 ## 📄 License
