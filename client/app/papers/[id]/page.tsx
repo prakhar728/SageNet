@@ -210,7 +210,6 @@ export default function PaperDetailsPage({
   useEffect(() => {
     const santizeReviews = async () => {
       if (!allReviews || allReviews.length === 0) return;
-      console.log("Santizing");
       
       const reviewPromises = allReviews.map(async (r) => {
         try {
@@ -240,8 +239,6 @@ export default function PaperDetailsPage({
       // Wait for all promises to resolve
       const reviewsData = await Promise.all(reviewPromises);
       
-      console.log(reviewsData);
-
       setReviews(reviewsData)
       
     };
@@ -301,38 +298,7 @@ export default function PaperDetailsPage({
       const deadlineInSeconds =
         Math.floor(Date.now() / 1000) + bountyDays * 24 * 60 * 60;
 
-      // In a real implementation, this would call the createBounty function
-      console.log("Creating bounty with:", {
-        paperId: BigInt(id),
-        amount: parseEther(bountyAmount),
-        deadline: BigInt(deadlineInSeconds),
-        maxReviewers: BigInt(bountyReviewers),
-      });
-
-      // Mock successful bounty creation
-      // setBounty({
-      //   exists: true,
-      //   isActive: true,
-      //   remaining: bountyReviewers,
-      //   totalReviewers: bountyReviewers,
-      //   acceptedReviews: 0,
-      //   amountPerReviewer: (parseFloat(bountyAmount) / bountyReviewers).toFixed(
-      //     4
-      //   ),
-      //   totalAmount: bountyAmount,
-      //   deadline: deadlineInSeconds,
-      //   timeRemaining: bountyDays * 24 * 60 * 60,
-      //   creator: address,
-      // });
-
       setIsLoading(false);
-
-      console.log(parseEther(bountyAmount));
-      console.log(
-        BigInt(id),
-        BigInt(deadlineInSeconds),
-        BigInt(bountyReviewers)
-      );
 
       // Actual contract call would be:
       await writeContractAsync({
@@ -352,25 +318,6 @@ export default function PaperDetailsPage({
     try {
       // In a real implementation, this would call the acceptReview function
       console.log("Accepting review:", reviewId);
-
-      // Update the review status in our state
-      // setReviews(
-      //   reviews.map((review) =>
-      //     review.reviewId === reviewId
-      //       ? { ...review, status: 1 } // Set to Accepted
-      //       : review
-      //   )
-      // );
-
-      // Update bounty stats
-      // if (bounty) {
-      //   setBounty({
-      //     ...bounty,
-      //     remaining: bounty.remaining - 1,
-      //     acceptedReviews: bounty.acceptedReviews + 1,
-      //     isActive: bounty.remaining > 1,
-      //   });
-      // }
 
       // Actual contract call would be:
       await writeContractAsync({
@@ -415,19 +362,13 @@ export default function PaperDetailsPage({
       // In a real implementation, this would call the reclaimBounty function
       console.log("Reclaiming bounty");
 
-      // Update bounty status
-      setBounty({
-        ...bounty,
-        isActive: false,
-      });
-
       // Actual contract call would be:
-      // await writeContractAsync({
-      //   abi: SageNetReview.abi,
-      //   address: ContractAddresses.sageNetReview as `0x${string}`,
-      //   functionName: "reclaimBounty",
-      //   args: [BigInt(id)]
-      // })
+      await writeContractAsync({
+        abi: SageNetReview.abi,
+        address: ContractAddresses.sageNetReview as `0x${string}`,
+        functionName: "reclaimBounty",
+        args: [BigInt(id)]
+      })
     } catch (error) {
       console.error("Error reclaiming bounty:", error);
     }

@@ -28,6 +28,8 @@ import SageNetCore from "@/contracts/SageNetCore.json";
 import ContractAddresses from "@/contracts/DeploymentInfo.json";
 import { BountyInfo, PaperFormState } from "@/utils/PaperFormTypes";
 import { uploadFile } from "@/utils/ipfs";
+import { ResearchAgent } from "@/components/research-agent";
+
 
 export default function UploadPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -121,9 +123,6 @@ export default function UploadPage() {
   // contract interactions
   const { writeContractAsync, isError } = useWriteContract();
 
-  console.log(isError && isError);
-  
-
   return (
     <div className="container py-8">
       <div className="flex flex-col space-y-4">
@@ -153,7 +152,7 @@ export default function UploadPage() {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 relative"> {/* Added relative positioning */}
                 <Label htmlFor="abstract">Abstract</Label>
                 <Textarea
                   id="abstract"
@@ -163,6 +162,8 @@ export default function UploadPage() {
                   onChange={(e) => updateFormState("abstract", e.target.value)}
                   required
                 />
+                {/* Add the Research Agent component */}
+                <ResearchAgent abstractText={formState.abstract} />
               </div>
 
               <div className="space-y-2">
@@ -275,85 +276,7 @@ export default function UploadPage() {
             </CardContent>
           </Card>
 
-          {/* <Card>
-            <CardHeader>
-              <CardTitle>Bounty Settings</CardTitle>
-              <CardDescription>
-                Offer TestTokens as bounty for quality peer reviews.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="bounty-switch">Enable Bounty</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Incentivize reviewers with token rewards
-                  </p>
-                </div>
-                <Switch
-                  id="bounty-switch"
-                  checked={formState.bountyInfo.enabled}
-                  onCheckedChange={(checked) =>
-                    updateBountyInfo("enabled", checked)
-                  }
-                />
-              </div>
-
-              {enableBounty && (
-                <>
-                  <Separator className="my-4" />
-                  <div className="space-y-2">
-                    <Label htmlFor="bounty-amount">
-                      Bounty Amount (TestTokens)
-                    </Label>
-                    <div className="flex gap-2">
-                      <Select
-                        defaultValue="50"
-                        value={formState.bountyInfo.amount}
-                        onValueChange={(value) =>
-                          updateBountyInfo("amount", value)
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="25">25 TestTokens</SelectItem>
-                          <SelectItem value="50">50 TestTokens</SelectItem>
-                          <SelectItem value="100">100 TestTokens</SelectItem>
-                          <SelectItem value="200">200 TestTokens</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Select
-                        defaultValue="3"
-                        value={formState.bountyInfo.reviewers}
-                        onValueChange={(value) =>
-                          updateBountyInfo("reviewers", value)
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="1">1 Reviewer</SelectItem>
-                          <SelectItem value="3">3 Reviewers</SelectItem>
-                          <SelectItem value="5">5 Reviewers</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      Total: 150 TestTokens will be locked for bounties
-                    </p>
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card> */}
-
           <div className="flex justify-end gap-4">
-            {/* <Button variant="outline" type="button">
-              Save as Draft
-            </Button> */}
             <Button
               type="submit"
               disabled={

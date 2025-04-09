@@ -105,7 +105,6 @@ export default function ExplorePage() {
 
       setpapers(temp);
     };
-    console.log(allPapers);
 
     if (allPapers && allPapers.length) normalizeThePapers();
   }, [allPapers]);
