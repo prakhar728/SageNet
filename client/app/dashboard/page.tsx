@@ -172,8 +172,6 @@ export default function DashboardPage() {
           };
         });
 
-      console.log(publicationsData);
-
       setPublications(publicationsData);
       setIsLoading(false);
     };
@@ -189,13 +187,9 @@ export default function DashboardPage() {
 
       const reviewContributions: Contribution[] = [];
 
-      console.log("her");
-
       // Now create contribution objects for each review
       allReviews.forEach((review) => {
         const paperId = review.result?.paperId.toString();
-
-        console.log("here");
 
         // Determine reward amount (convert from wei to ETH if it exists)
         const rewardAmount = review.result?.bountyAmount
@@ -220,8 +214,6 @@ export default function DashboardPage() {
       });
 
       setContributions(reviewContributions);
-
-      console.log(reviewContributions);
     };
 
     processReviews();
@@ -231,12 +223,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const getIncomingPublications = async () => {
       if (!latestPaperId) return;
-
-      const latestId = Number(latestPaperId);
       // Check each paper to see if the current user is the publisher
-
-      console.log(allOfPapers);
-
       var temp = allOfPapers?.map((paperData) => {
         if (
           paperData &&
