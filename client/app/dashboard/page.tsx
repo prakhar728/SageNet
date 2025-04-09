@@ -71,10 +71,17 @@ export default function DashboardPage() {
     })),
   });
 
+  const { data: latestPaperId } = useReadContract({
+      abi: SageNetCore.abi,
+      address: ContractAddresses.sageNetCore as `0x${string}`,
+      functionName: "getLatestPaperId",
+      args: [],
+    });
+
   // Get all paper in the db
   const { data: allOfPapers } = SageNetCore
     ? useReadContracts({
-        contracts: new Array(10).fill(null).map((_, index) => ({
+        contracts: (parseInt(latestPaperId) ? new Array(parseInt(latestPaperId)) : []).fill(null).map((_, index) => ({
           address: ContractAddresses.sageNetCore as `0x${string}`,
           abi: SageNetCore.abi,
           functionName: "getPaper",
@@ -100,18 +107,6 @@ export default function DashboardPage() {
       args: [id],
     })),
   });
-
-  //un comment this
-  // const { data: getLatestPaperId } = useReadContract({
-  //   abi: SageNetReview.abi,
-  //   address: ContractAddresses.sageNetReview as `0x${string}`,
-  //   functionName: "getLatestPaperId",
-  //   args: [],
-  // });
-
-  const getLatestPaperId = {
-    result: BigInt(10),
-  };
 
   // Process paper data when loaded
   useEffect(() => {
@@ -235,15 +230,9 @@ export default function DashboardPage() {
   // Get papers where the user is the publisher (incoming publication requests)
   useEffect(() => {
     const getIncomingPublications = async () => {
-      // In a real app, you would query for all papers where current user is the publisher
-      // For MVP, we'll use the contract's existing calls, but in a real app you might need a custom view function
+      if (!latestPaperId) return;
 
-      // This is a simplification - in a real app we would query directly for papers where user is publisher
-      // For now, we'll just grab all paper IDs and check each one
-
-      if (!getLatestPaperId || !getLatestPaperId.result) return;
-
-      const latestId = Number(getLatestPaperId.result);
+      const latestId = Number(latestPaperId);
       // Check each paper to see if the current user is the publisher
 
       console.log(allOfPapers);

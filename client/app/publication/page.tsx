@@ -342,9 +342,6 @@ export default function PublicationPage() {
             </Card>
 
             <div className="flex justify-end gap-4">
-              <Button variant="outline" type="button">
-                Save Draft
-              </Button>
               <Button
                 type="submit"
                 disabled={!selectedPaper || !selectedJournal || submissionStatus === "submitting" || submissionStatus === "success"}
