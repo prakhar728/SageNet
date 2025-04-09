@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ExternalLink, Search } from "lucide-react";
-import { useAccount, useReadContracts } from "wagmi";
+import { useAccount, useReadContract, useReadContracts } from "wagmi";
 import SageNetCore from "@/contracts/SageNetCore.json";
 import ContractAddresses from "@/contracts/DeploymentInfo.json";
 import { inferStatus } from "@/utils/ utils";
@@ -59,13 +59,22 @@ export default function ExplorePage() {
   //contract interactions
 
   const { address } = useAccount();
+
+  const { data: latestPaperId } = useReadContract({
+    abi: SageNetCore.abi,
+    address: ContractAddresses.sageNetCore as `0x${string}`,
+    functionName: "getLatestPaperId",
+    args: [],
+  });
+  
+
   const {
     data: allPapers,
     isLoading,
     error: multipleReadError,
   } = SageNetCore
     ? useReadContracts({
-        contracts: new Array(10).fill(null).map((_, index) => ({
+        contracts: (parseInt(latestPaperId) ? new Array(parseInt(latestPaperId)) : []).fill(null).map((_, index) => ({
           address: ContractAddresses.sageNetCore as `0x${string}`,
           abi: SageNetCore.abi,
           functionName: "getPaper",
