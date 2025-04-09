@@ -1,6 +1,6 @@
 # SageNet: A Web3-Powered Research Platform
 
-A safe place for Research enthusiasts to upload their papers, publish them with proof of owner, apply for publication in various Journals, set bounties for peer reviews, and contribute to others' research. Built on top of EDU-CHAIN.
+A safe, decentralized platform for Research enthusiasts to publish their papers with proof of ownership, apply for publication in various Journals, set bounties for peer reviews, and contribute to others' research. Powered by EDU-CHAIN and assisted by Sagey — your AI agent for finding related research fast.
 
 ## UNDERSTANDING THE PROBLEM:
 
@@ -8,7 +8,7 @@ A safe place for Research enthusiasts to upload their papers, publish them with 
 
 
 
-## FEATURES:
+## FEATURES( AN OVERVIEW):
 
 1. Authorship Tracking with SBTs(ERC721 tokens)
     * Researchers receive a Soulbound Token (SBT) when they upload their first draft.
@@ -27,7 +27,48 @@ A safe place for Research enthusiasts to upload their papers, publish them with 
 
 4. Decentralized Research Search Engine
 
-A Web3-powered search engine for research papers.
+    * A Web3-powered search engine for research papers.
 
-Uses DAO governance to rank research fairly (not just based on SEO or paywalls).
+    * Uses DAO governance to rank research fairly (not just based on SEO or paywalls).
 
+## TECH STACK
+
+### Frontend
+
+1. Next.js(Typescript)
+2. Wagmi with Reown Wallet. 
+
+### Agent
+
+Python with BM25 Algorithm for Similarity search
+
+### Smart Contract
+
+1. Foundry
+2. Solidity
+3. Open Zeppelin ERC721
+
+
+## RUNNING LOCALLY
+
+1. Clone the repository:
+```bash
+git clone https://github.com/prakhar728/SageNet.git && cd SageNet
+```
+
+2. Install dependencies:
+```bash
+cd client
+pnpm install
+```
+
+3. Set up environment variables:
+```bash
+cp .env.example .env
+```
+Add the required variables to `.env`
+
+4. Start the development server:
+```bash
+pnpm run dev
+```
