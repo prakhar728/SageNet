@@ -204,6 +204,18 @@ flowchart TD
     C -->|Accept| E[Paper is Published by the Journal]
 ```
 
+### Sagey Agent Flow
+
+```mermaid
+graph TD;
+    A[Start] --> B[Receive User Query];
+    B --> C[Preprocess Query];
+    C --> D[Search Database with BM25];
+    D --> E[Evaluate Results with Ranking Metrics];
+    E --> F[Return Ranked Papers to User];
+    F --> G[End];
+```
+
 ## 🧾 What We’ll Do With Funds
 
 - 💼 **Sustain Ourselves**: As student builders, the funds will act as a **side income** to allow us to work more consistently and seriously on the project.
