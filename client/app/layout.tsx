@@ -6,6 +6,7 @@ import "./globals.css";
 import ContextProvider from "@/context";
 import { headers } from "next/headers";
 import "./globals.css";
+import OCConnectWrapper from "@/components/OCConnectWrapper";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -23,10 +24,17 @@ export default async function RootLayout({
 }) {
   const cookies = (await headers()).get("cookie");
 
+  const opts = {
+    clientId: '<Does_Not_Matter_For_Sandbox_mode>',    
+    redirectUri: 'https://sage-net.vercel.app/redirect', // Adjust this URL
+    referralCode: 'PARTNER6', // Assign partner code
+  };
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans`}>
         <ContextProvider cookies={cookies}>
+        <OCConnectWrapper opts={opts} sandboxMode={true}>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -66,6 +74,7 @@ export default async function RootLayout({
               </footer>
             </div>
           </ThemeProvider>
+          </OCConnectWrapper>
         </ContextProvider>
       </body>
     </html>

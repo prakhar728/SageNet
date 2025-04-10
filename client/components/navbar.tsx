@@ -8,9 +8,13 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { Wallet } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
+import { useOCAuth } from "@opencampus/ocid-connect-js";
+import LoginButton from "./LoginButton";
 
 export default function Navbar() {
   const pathname = usePathname();
+
+  const { isInitialized, authState, ocAuth } = useOCAuth();
 
   const routes = [
     { href: "/", label: "Home" },
@@ -46,6 +50,13 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           <ModeToggle />
           <appkit-button />
+          {isInitialized && authState && authState.isAuthenticated ? (
+                  <p>
+                    You are logged in! {JSON.stringify(ocAuth.getAuthState())}
+                  </p>
+                ) : (
+                  <LoginButton />
+                )}
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="md:hidden">
@@ -69,6 +80,13 @@ export default function Navbar() {
                   </Link>
                 ))}
                 <appkit-button />
+                {isInitialized && authState && authState.isAuthenticated ? (
+                  <p>
+                    You are logged in! {JSON.stringify(ocAuth.getAuthState())}
+                  </p>
+                ) : (
+                  <LoginButton />
+                )}
               </nav>
             </SheetContent>
           </Sheet>
