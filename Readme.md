@@ -82,7 +82,6 @@ In the article **["Peer Review Ghost-Writing, or Do Professors Understand Plagia
 
 ---
 
-
 ## 💰 Fundraising Status
 
 We’re currently in the **fundraising phase** to sustain and grow SageNet beyond the hackathon.
@@ -96,6 +95,7 @@ Since this project is being built entirely by students — with Parth being a un
 ### 🔧 Technical Roadmap
 
 - **Next 2 Months**
+
   - Launch the **testnet version** with rewritten and **security-audited smart contracts** for:
     - Paper publishing
     - Bounty creation
@@ -103,6 +103,7 @@ Since this project is being built entirely by students — with Parth being a un
   - Remodel **Sagey** to dynamically analyze all uploaded papers, enhancing **similarity detection** and **research relevance**.
 
 - **Following 1 Month**
+
   - Gather feedback from early testnet users.
   - Iterate quickly and fix bugs to improve the platform's performance and usability.
 
@@ -132,6 +133,35 @@ Since this project is being built entirely by students — with Parth being a un
 We are open to collaborations, grant opportunities, and accelerator programs that align with our mission to build a fair, decentralized future for research publishing.
 
 ---
+
+## User Flows
+
+### Paper Peer Review Flow
+
+```mermaid
+   flowchart TD
+      A[User Uploads Research Paper] --> B["Creates a Bounty<br>- Amount<br>- Number of Reviewers<br>- Deadline"]
+      B --> C[Other Users Submit Reviews/Feedback]
+      C --> D[Author Reviews Feedback Before Deadline]
+      D -->|Accepts Feedback| E[Reviewer Added to Accepted List]
+      D -->|Rejects Feedback| F[Reviewer Rejected]
+
+      E --> G{Deadline Reached}
+      F --> G
+
+      G -->|Enough Accepted Reviews| H[Accepted Reviewers Receive Bounties]
+      G -->|Not Enough Accepted Reviews| I[Author Reclaims Remaining Bounty]
+```
+
+### Paper Publishing Flow
+
+```mermaid
+flowchart TD
+    A[User Uploads Paper] --> B[Adds Journal Address to Apply For Publishing]
+    B --> C[Journal Reviews the Submission]
+    C -->|Change Status| D[Paper Status Updated (e.g., Under Review, Rejected)]
+    C -->|Accept| E[Paper is Published by the Journal]
+```
 
 ## 🧠 Tech Stack
 
