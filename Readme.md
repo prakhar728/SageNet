@@ -159,7 +159,7 @@ We are open to collaborations, grant opportunities, and accelerator programs tha
 flowchart TD
     A[User Uploads Paper] --> B[Adds Journal Address to Apply For Publishing]
     B --> C[Journal Reviews the Submission]
-    C -->|Change Status| D[Paper Status Updated (e.g., Under Review, Rejected)]
+    C -->|Change Status| D["Paper Status Updated (e.g., Under Review, Rejected)"]
     C -->|Accept| E[Paper is Published by the Journal]
 ```
 
