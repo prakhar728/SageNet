@@ -8,9 +8,20 @@ A safe, decentralized platform for research enthusiasts to publish papers with p
 
 - [Understanding the Problem](#understanding-the-problem)
   - [Our Narrative](#our-narrative)
-  - [Problems Faced by Others](#problems-faced-by-others)
+  - [🔎 Issues in the Peer Review System](#-issues-in-the-peer-review-system)
 - [🔍 Features](#-features)
+- [💰 Fundraising Status](#-fundraising-status)
+- [🗺️ Project Roadmap](#️-project-roadmap)
+  - [🔧 Technical Roadmap](#-technical-roadmap)
+  - [📈 Business & Community Roadmap](#-business--community-roadmap)
+- [🧾 What We'll Do With Funds](#-what-well-do-with-funds)
+- [User Flows](#user-flows)
+  - [Paper Peer Review Flow](#paper-peer-review-flow)
+  - [Paper Publishing Flow](#paper-publishing-flow)
 - [🧠 Tech Stack](#-tech-stack)
+  - [Frontend](#frontend)
+  - [Agent](#agent)
+  - [Smart Contract](#smart-contract)
 - [🚀 Running Locally](#-running-locally)
 - [📄 License](#-license)
 - [👥 Authors](#-authors)
@@ -21,18 +32,11 @@ A safe, decentralized platform for research enthusiasts to publish papers with p
 
 ### Our Narrative ( MUST READ )
 
-Parth (@Par-t) completed our mandatory 6-month industry training through research instead of the more conventional internship route — a rare path due to the lack of **research support in India**. This decision came with several challenges during his work on **Application of Machine Learning in Fiber Optics based intrusion detection and classification systems** and **Aspect based sentiment**:
+Parth (@Par-t) completed our mandatory 6-month industry training through research instead of the more conventional internship route — a rare path due to the lack of **research support in India**. This decision came with several challenges during his work on **Application of Machine Learning in Fiber Optics based intrusion detection and classification systems** and **Aspect based sentiment analysis of reviews in tourism and hospitality sector**:
 
 1. Many professors prioritize **quantity of publication** over **quality** and global standards.
 2. The journal submission process is **slow** and **opaque**, often requiring repeated follow-ups.
 3. Peer reviews are often done by TAs, resulting in **low-quality feedback** due to a lack of incentives.
-
-### Problems Faced by Others
-
-1. **Lack of Proof of Authorship:** Difficulty establishing ownership, leading to plagiarism risks.
-2. **Opaque Submission Process:** Traditional journal pipelines are time-consuming and frustrating.
-3. **Difficulty Finding Related Research:** Researchers struggle to avoid redundancy.
-4. **Predatory Publishing:** Some journals exploit researchers without offering real value.
 
 ### 🔎 Issues in the Peer Review System
 
@@ -77,18 +81,66 @@ In the article **["Peer Review Ghost-Writing, or Do Professors Understand Plagia
    - Ranks papers fairly — not by SEO or paywalls.
 
 5. **Sagey – Personal AI Research Assistant**
+
    - Recommends papers and references as you write.
    - Improves literature review and speeds discovery.
 
----
-
-## 💰 Fundraising Status
-
-We’re currently in the **fundraising phase** to sustain and grow SageNet beyond the hackathon.
-
-Since this project is being built entirely by students — with Parth being a university student and Prakhar still early in his career — any funding would help us continue working full-time on the platform. We are currently seeking **grants, accelerators, and angel support** to push SageNet forward and build it into a sustainable, impactful research ecosystem.
+6. **Transparent Journal Submission Tracking**
+   - Real-time status updates on paper submissions to journals
+   - Eliminates the need for constant follow-ups between authors and publishers
+   - Clear visibility into each stage of the review process with automated notifications
 
 ---
+
+## 💡 Use Cases: Where SageNet Shines
+
+### 1. Global Research Tracking & Discovery
+
+**Problem:** Research is siloed in different journals and platforms, creating redundancy and missed collaboration opportunities.
+
+**SageNet Solution:** Our platform provides:
+
+- Unified discovery across journals and institutions worldwide
+- AI-powered similarity detection to connect related research
+- Decentralized indexing that isn't limited by paywalls or institutional access
+
+**Real-world Impact:** A PhD student in India can instantly discover and connect with researchers in Europe working on similar problems, avoiding duplicate work and fostering global collaboration.
+
+### 2. Journal Reputation System
+
+**Problem:** Researchers struggle to identify trustworthy journals among predatory publishers.
+
+**SageNet Solution:** Our on-chain reputation system:
+
+- Tracks journal performance metrics transparently
+- Enables researcher ratings and reviews of publications
+- Creates immutable records of journal publishing history
+
+**Real-world Impact:** A new researcher can confidently submit to journals with proven track records instead of risking their work with exploitative publishers.
+
+### 3. Incentivized Quality Peer Reviews
+
+**Problem:** Traditional peer review lacks incentives, resulting in delayed or superficial feedback.
+
+**SageNet Solution:** Our bounty system:
+
+- Motivates thorough, timely reviews through financial incentives
+- Ensures review quality through author verification before payment
+- Creates a reputation system for reviewers based on acceptance rate
+
+**Real-world Impact:** A researcher receives five detailed, actionable peer reviews within two weeks instead of waiting months for potentially superficial feedback through traditional channels.
+
+### 4. Transparent Submission Tracking
+
+**Problem:** Researchers waste time and energy with constant follow-ups on submission status.
+
+**SageNet Solution:** Our status tracking system:
+
+- Provides real-time updates on paper progression through review stages
+- Sends automated notifications when status changes
+- Creates accountability through transparent timelines
+
+**Real-world Impact:** Instead of sending weekly emails asking about paper status, researchers can focus on their next project while receiving clear updates through the platform.
 
 ## 🗺️ Project Roadmap
 
@@ -123,17 +175,6 @@ Since this project is being built entirely by students — with Parth being a un
 
 ---
 
-## 🧾 What We’ll Do With Funds
-
-- 💼 **Sustain Ourselves**: As student builders, the funds will act as a **side income** to allow us to work more consistently and seriously on the project.
-- 🧪 **Development Costs**: Pay for essential infrastructure such as cloud compute, smart contract audits, and continuous deployment.
-- 🚀 **Growth & Partnerships**: Fuel outreach campaigns, partnership initiatives with universities and journals, and expand community support.
-- 🧠 **Product Enhancements**: Invest in building more advanced AI capabilities and onboarding tools for new researchers.
-
-We are open to collaborations, grant opportunities, and accelerator programs that align with our mission to build a fair, decentralized future for research publishing.
-
----
-
 ## User Flows
 
 ### Paper Peer Review Flow
@@ -162,6 +203,25 @@ flowchart TD
     C -->|Change Status| D["Paper Status Updated (e.g., Under Review, Rejected)"]
     C -->|Accept| E[Paper is Published by the Journal]
 ```
+
+## 🧾 What We’ll Do With Funds
+
+- 💼 **Sustain Ourselves**: As student builders, the funds will act as a **side income** to allow us to work more consistently and seriously on the project.
+- 🧪 **Development Costs**: Pay for essential infrastructure such as cloud compute, smart contract audits, and continuous deployment.
+- 🚀 **Growth & Partnerships**: Fuel outreach campaigns, partnership initiatives with universities and journals, and expand community support.
+- 🧠 **Product Enhancements**: Invest in building more advanced AI capabilities and onboarding tools for new researchers.
+
+We are open to collaborations, grant opportunities, and accelerator programs that align with our mission to build a fair, decentralized future for research publishing.
+
+---
+
+## 💰 Fundraising Status
+
+We’re currently in the **fundraising phase** to sustain and grow SageNet beyond the hackathon.
+
+Since this project is being built entirely by students — with Parth being a university student and Prakhar still early in his career — any funding would help us continue working full-time on the platform. We are currently seeking **grants, accelerators, and angel support** to push SageNet forward and build it into a sustainable, impactful research ecosystem.
+
+---
 
 ## 🧠 Tech Stack
 
