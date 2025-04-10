@@ -44,7 +44,7 @@ export default function UploadPage() {
   const [formState, setFormState] = useState<PaperFormState>({
     // Paper details
     title: "Predictors of Psychological Distress Following Serious Injury",
-    abstract: "https://chatgpt.com/c/67f22b3e-e68c-8006-8d8b-6f26e797ec06",
+    abstract: "A clear well written abstract",
     category: "privacy",
     tags: ["psychology"],
     tagInput: "",

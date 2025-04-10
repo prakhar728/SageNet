@@ -78,7 +78,7 @@ export default function ExplorePage() {
           address: ContractAddresses.sageNetCore as `0x${string}`,
           abi: SageNetCore.abi,
           functionName: "getPaper",
-          args: [index],
+          args: [index + 1],
         })),
       })
     : { data: undefined, isLoading: false, error: undefined };
