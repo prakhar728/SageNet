@@ -4,7 +4,7 @@ from fastapi import FastAPI, Response
 from pydantic import BaseModel
 from typing import List, Dict
 from fastapi.middleware.cors import CORSMiddleware
-from rank_bm25 import BM25Okapi
+from rank_bm25 import BM25Plus
 import pandas as pd
 import uvicorn
 from nltk.corpus import stopwords
@@ -46,40 +46,29 @@ cord_uids = df_collection['cord_uid'].tolist()
 
 tokenized_corpus = [doc.split(' ') for doc in corpus]
 
-bm25 = BM25Okapi(tokenized_corpus)
+bm25 = BM25Plus(tokenized_corpus)
 
 class QueryRequest(BaseModel):
     query: str
-    top_k: int = 5  # Number of results to return
+    top_k: int = 10  # Number of results to return
 
 # Preprocessing function for queries
 nltk.download('punkt_tab')
 nltk.download('stopwords')
 
-# Initialize stemmer and stop words
 stemmer = PorterStemmer()
 stop_words = set(stopwords.words('english'))
 
 def preprocess_query(query):
-    """
-    Preprocesses the query by removing punctuation, stemming, and removing stop words.
-    """
-    # Remove punctuation
     query = re.sub(r'[^\w\s]', '', query)
-    # Tokenize the query
     tokens = nltk.word_tokenize(query.lower())
-    # Stem and remove stop words
     processed_tokens = [stemmer.stem(token) for token in tokens if token not in stop_words]
-    # Join the processed tokens back into a string
     processed_query = ' '.join(processed_tokens)
-    print(f"Preprocessed Query: {processed_query}")  # Debugging line to print preprocessed query
     return processed_query
 
-# Modify the function to preprocess query before BM25 search
 def get_top_cord_uids(query: str, top_k: int = 5) -> List[str]:
-    # Preprocess the query before passing it to BM25
     preprocessed_query = preprocess_query(query)
-    query_tokens = preprocessed_query.split()  # Now use preprocessed query
+    query_tokens = preprocessed_query.split()  
     scores = bm25.get_scores(query_tokens)
     ranked_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:top_k]
     return [cord_uids[i] for i in ranked_indices]
@@ -102,7 +91,7 @@ def home():
 
 @app.post("/search")
 def search_bm25(request: QueryRequest):
-    # Process the query and retrieve results
+
     result_ids = get_top_cord_uids(request.query, request.top_k)
     results = get_abstract_and_title(result_ids)
     return results
@@ -113,6 +102,5 @@ async def health_check(response: Response):
     return Response(content="OK", status_code=200)
 
 if __name__ == "__main__":
-    # Run the app on localhost
-    # unicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
-    uvicorn.run("app:app", host="localhost", port=8000, reload=True)
+
+    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
