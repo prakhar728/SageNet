@@ -1,5 +1,4 @@
 import nltk
-import re  # You need to import `re` for regular expressions
 from fastapi import FastAPI, Response
 from pydantic import BaseModel
 from typing import List, Dict
