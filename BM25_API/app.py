@@ -29,7 +29,7 @@ app.add_middleware(
 )
 
 # Load the research paper data
-PATH_COLLECTION_DATA = "data\\preprocessed_df.pkl"
+PATH_COLLECTION_DATA = "data/preprocessed_df.pkl"
 df_collection = pd.read_pickle(PATH_COLLECTION_DATA)
 
 
